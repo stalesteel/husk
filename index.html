@@ -20,6 +20,8 @@
   .role { flex: none; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border);
     font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
   .role.owner { border-color: transparent; background: rgba(255, 255, 255, 0.22); color: inherit; }
+  .group-button.editor { background: var(--accent-soft); color: var(--accent-soft-text); }
+  .group-button.editor .role { border-color: transparent; background: rgba(255, 255, 255, 0.55); color: inherit; }
 
   /* Infoknappen øverst til høyre */
   .info-link { position: absolute; top: calc(env(safe-area-inset-top) + 14px); right: 16px;
@@ -96,7 +98,7 @@
           groupsEl.replaceChildren(...groups.map((group) => {
             const owner = group.owner_id === user.id;
             return el('a', {
-              class: owner ? 'button group-button' : 'button secondary group-button',
+              class: owner ? 'button group-button' : 'button group-button editor',
               href: `/gruppe/?id=${group.id}`,
             }, el('span', { class: 'group-name' }, group.name),
                el('span', { class: owner ? 'role owner' : 'role' }, owner ? 'Eier' : 'Redaktør'));
