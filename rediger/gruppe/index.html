@@ -19,6 +19,7 @@
     </div>
 
     <p id="message" class="muted">Et øyeblikk …</p>
+    <p id="admin-note" class="admin-note" hidden>Adminmodus – du redigerer en gruppe som ikke er din.</p>
 
     <article id="group" hidden>
       <input id="name" class="field name-field" type="text" placeholder="Navn på gruppen" aria-label="Navn på gruppen">
@@ -49,7 +50,7 @@
 
       <section id="editors-section" class="edit-section" hidden>
         <h2>Hvem kan redigere</h2>
-        <p class="muted">Du eier gruppen. De du legger til her, kan redigere gruppesiden og alle listene, men ikke slette gruppen eller gi andre tilgang.</p>
+        <p id="editors-intro" class="muted">Du eier gruppen. De du legger til her, kan redigere gruppesiden og alle listene, men ikke slette gruppen eller gi andre tilgang.</p>
         <div id="editors"></div>
         <form id="new-editor" class="new-item">
           <input id="new-editor-email" class="text-input" type="email" inputmode="email" autocomplete="off"

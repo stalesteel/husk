@@ -98,10 +98,14 @@
   white-space: pre-wrap;
 }
 
-/* Etikettfeltet står på bildet, der etiketten vises (se .image-label i
-   liste.css), med samme form, pluss en ramme som viser at det kan redigeres. */
+/* Etikettfeltet står nede til venstre på bildet, rett over prikkene, fordi
+   verktøyene ligger øverst. Samme form som etiketten, pluss en ramme som
+   viser at det kan redigeres. Bredden følger teksten (settes i rediger.js). */
 .editing input.field.image-label {
-  width: calc(50% - 72px);
+  top: auto;
+  bottom: 40px;
+  width: auto;
+  max-width: calc(100% - 24px);
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;

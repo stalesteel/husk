@@ -2,6 +2,7 @@
 // beskrivelse er felt, bildene tas med kameraet rett inn i steget, og alt
 // lagres fortløpende.
 
+import { canEdit } from './admin.js';
 import { getUser } from './auth.js';
 import {
   deleteImage, deleteStep, getList, imageUrl, insertImage, insertStep,
@@ -21,6 +22,23 @@ let list;
 let current = 0;
 
 showStatusIn($('save-status'));
+
+// ---------------------------------------------------------------------------
+// Etikettbredde
+// Grensen er bildebredden på en liten telefon (375 px) minus margen rundt
+// etiketten, så den får plass på én linje på alle skjermer.
+// ---------------------------------------------------------------------------
+
+const LABEL_MAX_WIDTH = 375 - 24;
+const measureContext = document.createElement('canvas').getContext('2d');
+
+// Bredden etiketten får med denne teksten, med polstring og ramme.
+function labelWidth(input, text) {
+  const style = getComputedStyle(input);
+  measureContext.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  return measureContext.measureText(text).width + padding + 4;
+}
 
 // ---------------------------------------------------------------------------
 // Tegning
@@ -81,13 +99,28 @@ function renderStep(step, index) {
   // Etiketten hører til bildet som vises, og brukes bare når steget har flere.
   const label = images.length > 1
     ? el('input', {
-        class: 'field image-label', type: 'text', maxlength: 40,
+        class: 'field image-label', type: 'text', maxlength: 60,
         placeholder: '+ Etikett', 'aria-label': 'Etikett for bildet (valgfri)',
       })
     : null;
+  // Etiketten må få plass på én linje på bildet også på en liten telefon.
+  // Blir den for lang, beholdes forrige tekst. Feltet er så bredt som teksten.
+  let lastLabel = '';
+  const fitLabel = () => {
+    const text = label.value || label.placeholder;
+    label.style.width = `${Math.ceil(labelWidth(label, text))}px`;
+  };
   label?.addEventListener('input', () => {
     const image = shownImage();
     if (!image?.id) return;
+    if (labelWidth(label, label.value) > LABEL_MAX_WIDTH) {
+      const caret = label.selectionStart - (label.value.length - lastLabel.length);
+      label.value = lastLabel;
+      label.setSelectionRange(caret, caret);
+      return;
+    }
+    lastLabel = label.value;
+    fitLabel();
     image.label = label.value.trim() || null;
     later(`label:${image.id}`, () => updateImage(image.id, { label: image.label }));
   });
@@ -102,7 +135,9 @@ function renderStep(step, index) {
     }
     if (label) {
       label.value = shownImage()?.label ?? '';
+      lastLabel = label.value;
       label.disabled = !shownImage()?.id;
+      fitLabel();
     }
   };
 
@@ -394,7 +429,7 @@ async function main() {
     return;
   }
   if (!list) return showMessage('Fant ikke denne listen. Sjekk at lenken er riktig.');
-  if (!list.can_edit) return showMessage('Du har ikke tilgang til å redigere denne listen.');
+  if (!canEdit(list)) return showMessage('Du har ikke tilgang til å redigere denne listen.');
 
   document.title = `Rediger ${list.title} – Husk Klommestein`;
   $('list-title').textContent = list.title;

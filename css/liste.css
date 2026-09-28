@@ -167,15 +167,16 @@ body.viewer {
   padding: 4px 20px 0;
 }
 
-/* Etiketten hører til bildet, og står på det: nede til venstre, liten og
-   halvgjennomsiktig. Den holder seg unna prikkene i midten, og kuttes med
-   «…» om den er for lang. */
+/* Etiketten hører til bildet, og står på det: øverst til venstre, liten og
+   halvgjennomsiktig, og akkurat så bred som teksten. Lengden begrenses i
+   redigeringen, så den alltid får plass på én linje (se LABEL_MAX_WIDTH i
+   rediger.js); «…» er bare en sikring. */
 .image-label {
   position: absolute;
   left: 12px;
-  bottom: 12px;
+  top: 12px;
   z-index: 1;
-  max-width: calc(50% - 72px);
+  max-width: calc(100% - 24px);
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;

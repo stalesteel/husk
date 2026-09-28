@@ -1,4 +1,5 @@
 import { getList, imageUrl } from './data.js';
+import { canEdit } from './admin.js';
 import { el } from './dom.js';
 
 const $ = (id) => document.getElementById(id);
@@ -197,7 +198,7 @@ if (list) {
   $('list-title').textContent = list.title;
   $('back').href = `/gruppe/?id=${list.group.id}`;
   $('back').setAttribute('aria-label', `Tilbake til ${list.group.name}`);
-  if (list.can_edit) {
+  if (canEdit(list)) {
     $('edit').href = `/rediger/?id=${list.id}`;
     $('edit').hidden = false;
   }

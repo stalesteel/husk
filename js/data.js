@@ -21,12 +21,24 @@ export async function getList(id) {
   return data;
 }
 
-// Gruppene den innloggede eier eller kan redigere.
-export async function getMyGroups() {
-  const { data, error } = await supabase.from('groups').select('id, name').order('name');
+// Gruppene den innloggede eier eller er redaktør i. Filtreres her fordi en
+// administrator får se alle grupper fra databasen.
+export async function getMyGroups(userId) {
+  const { data, error } = await supabase.from('groups')
+    .select('id, name, owner_id, group_editors(user_id)')
+    .order('name');
   if (error) throw error;
-  return data;
+  return data.filter((group) => group.owner_id === userId
+    || group.group_editors.some((editor) => editor.user_id === userId));
 }
+
+export async function isAdmin() {
+  const { data, error } = await supabase.rpc('is_admin');
+  return !error && data === true;
+}
+
+// Alle grupper med eierens e-post og antall lister. Bare for administratorer.
+export const adminListGroups = () => run(supabase.rpc('admin_list_groups'));
 
 export function imageUrl(path) {
   return supabase.storage.from('images').getPublicUrl(path).data.publicUrl;

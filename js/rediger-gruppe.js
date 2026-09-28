@@ -1,6 +1,7 @@
 // Redigering av en gruppe: gruppesiden (navn, bilde, beskrivelse), listene
 // i den, QR-kode og sletting. Ser ut som gruppesiden, og lagres fortløpende.
 
+import { actsAsAdmin, canEdit } from './admin.js';
 import { getUser } from './auth.js';
 import {
   addGroupEditor, createList, deleteGroup, deleteList, getGroup, getGroupEditors,
@@ -292,7 +293,7 @@ async function main() {
     return showMessage('Kunne ikke laste gruppen. Sjekk nettet og prøv igjen.');
   }
   if (!group) return showMessage('Fant ikke denne gruppen. Sjekk at lenken er riktig.');
-  if (!group.can_edit) return showMessage('Du har ikke tilgang til å redigere denne gruppen.');
+  if (!canEdit(group)) return showMessage('Du har ikke tilgang til å redigere denne gruppen.');
 
   document.title = `Rediger ${group.name} – Husk Klommestein`;
   $('back').href = `/gruppe/?id=${group.id}`;
@@ -308,11 +309,16 @@ async function main() {
   setupEditors(user);
   setupLeave(user);
 
+  // I adminmodus har du eierens rettigheter: styre redaktører og slette.
   const isOwner = (await getGroupOwner(group.id).catch(() => null)) === user.id;
-  $('danger').hidden = !isOwner;
-  $('editors-section').hidden = !isOwner;
-  $('leave-section').hidden = isOwner;
-  if (isOwner) renderEditors();
+  const asAdmin = !isOwner && actsAsAdmin(group);
+  const fullAccess = isOwner || asAdmin;
+  $('danger').hidden = !fullAccess;
+  $('editors-section').hidden = !fullAccess;
+  $('leave-section').hidden = fullAccess || !group.can_edit;
+  $('admin-note').hidden = !asAdmin;
+  if (asAdmin) $('editors-intro').textContent = 'Adminmodus: du styrer redaktørene i en annens gruppe.';
+  if (fullAccess) renderEditors();
 
   $('message').hidden = true;
   $('group').hidden = false;

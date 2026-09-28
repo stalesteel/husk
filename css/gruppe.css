@@ -16,6 +16,16 @@
   font-weight: 600;
 }
 .group-top a { text-decoration: none; }
+.group-top #edit { margin-left: auto; }
+
+.admin-note {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--error);
+  color: var(--surface);
+  font-weight: 600;
+}
 
 .hero {
   display: block;

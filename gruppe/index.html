@@ -13,7 +13,7 @@
     <p id="message" class="muted">Et øyeblikk …</p>
     <article id="group" hidden>
       <div class="group-top">
-        <span></span>
+        <a id="home" href="/" hidden>‹ Mine grupper</a>
         <a id="edit" hidden>Rediger</a>
       </div>
       <h1 id="name"></h1>
@@ -24,6 +24,8 @@
   </main>
 
   <script type="module">
+    import { canEdit } from '/js/admin.js';
+    import { getUser } from '/js/auth.js';
     import { getGroup, imageUrl } from '/js/data.js';
     import { el } from '/js/dom.js';
 
@@ -49,7 +51,11 @@
       $('name').textContent = group.name;
       $('description').textContent = group.description;
       $('description').hidden = !group.description;
-      if (group.can_edit) {
+      // Innloggede kommer tilbake til gruppene sine. Gjester fra en QR-kode har
+      // ingenting å se på forsiden, så de får ikke lenken.
+      $('home').hidden = !(await getUser());
+
+      if (canEdit(group)) {
         $('edit').href = `/rediger/gruppe/?id=${group.id}`;
         $('edit').hidden = false;
       }
