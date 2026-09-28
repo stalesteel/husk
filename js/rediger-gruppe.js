@@ -53,10 +53,12 @@ function setupText() {
 // Bildet
 // ---------------------------------------------------------------------------
 
+// Samme topp som på gruppesiden: bildet, eller en grønn flate uten bilde.
 function showHero(src) {
   $('hero').hidden = !src;
   $('hero-tools').hidden = !src;
   $('hero-empty').hidden = !!src;
+  $('hero-wrap').classList.toggle('no-image', !src);
   if (src) $('hero').src = src;
 }
 

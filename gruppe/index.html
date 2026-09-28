@@ -9,17 +9,22 @@
 <link rel="stylesheet" href="/css/gruppe.css">
 </head>
 <body>
-  <main class="group">
-    <p id="message" class="muted">Et øyeblikk …</p>
+  <main class="gp">
+    <p id="message" class="muted gp-message">Et øyeblikk …</p>
     <article id="group" hidden>
-      <div class="group-top">
-        <a id="home" href="/" hidden>‹ Mine grupper</a>
-        <a id="edit" hidden>Rediger gruppen</a>
+      <header id="hero-wrap" class="gp-hero no-image">
+        <img id="hero" alt="" hidden>
+        <nav class="gp-bar">
+          <a id="home" class="pill" href="/" hidden>‹ Mine grupper</a>
+          <a id="edit" class="pill" hidden>Rediger gruppen</a>
+        </nav>
+      </header>
+      <div class="gp-sheet">
+        <h1 id="name"></h1>
+        <p id="description" class="description"></p>
+        <h2 class="gp-section-title">Sjekklister</h2>
+        <nav id="lists" aria-label="Sjekklister"></nav>
       </div>
-      <h1 id="name"></h1>
-      <img id="hero" class="hero" alt="" hidden>
-      <p id="description" class="description"></p>
-      <nav id="lists" class="lists" aria-label="Sjekklister"></nav>
     </article>
   </main>
 
@@ -27,7 +32,7 @@
     import { canEdit } from '/js/admin.js';
     import { getUser } from '/js/auth.js';
     import { getGroup, imageUrl } from '/js/data.js';
-    import { el, linkify } from '/js/dom.js';
+    import { checkIcon, el, linkify } from '/js/dom.js';
 
     const $ = (id) => document.getElementById(id);
 
@@ -60,15 +65,23 @@
         $('edit').hidden = false;
       }
 
-      // Mangler bildet eller feiler det, vises ingenting i stedet for et ødelagt bilde.
+      // Mangler bildet eller feiler det, blir toppen en grønn flate i stedet
+      // for et ødelagt bilde.
       if (group.image_path) {
-        $('hero').addEventListener('error', () => { $('hero').hidden = true; });
+        $('hero').addEventListener('error', () => {
+          $('hero').hidden = true;
+          $('hero-wrap').classList.add('no-image');
+        });
         $('hero').src = imageUrl(group.image_path);
         $('hero').hidden = false;
+        $('hero-wrap').classList.remove('no-image');
       }
 
       $('lists').append(...group.lists.map((list) =>
-        el('a', { class: 'button', href: `/liste/?id=${list.id}` }, list.title)));
+        el('a', { class: 'list-card', href: `/liste/?id=${list.id}` },
+          checkIcon(),
+          el('span', { class: 'card-title' }, list.title),
+          el('span', { class: 'card-chevron', 'aria-hidden': 'true' }, '›'))));
       if (group.lists.length === 0) {
         $('lists').append(el('p', { class: 'muted' }, 'Ingen sjekklister ennå.'));
       }

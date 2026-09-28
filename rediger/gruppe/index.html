@@ -9,38 +9,39 @@
 <link rel="stylesheet" href="/css/gruppe.css">
 </head>
 <body>
-  <main class="group editing-group">
-    <div class="group-top">
-      <a id="back" href="/">‹ Tilbake</a>
-      <span class="group-top-right">
-        <span id="save-status" class="save-status" aria-live="polite"></span>
-        <a id="done" href="/">Ferdig</a>
-      </span>
-    </div>
-
-    <p id="message" class="muted">Et øyeblikk …</p>
-    <p id="admin-note" class="admin-note" hidden>Adminmodus – du redigerer en gruppe som ikke er din.</p>
+  <main class="gp editing-group">
+    <p id="message" class="muted gp-message">Et øyeblikk …</p>
 
     <article id="group" hidden>
-      <input id="name" class="field name-field" type="text" placeholder="Navn på gruppen" aria-label="Navn på gruppen">
-
-      <div class="hero-edit">
-        <img id="hero" class="hero" alt="" hidden>
-        <div id="hero-empty" class="hero hero-empty">
+      <header id="hero-wrap" class="gp-hero no-image">
+        <img id="hero" alt="" hidden>
+        <div class="gp-bar">
+          <a id="back" class="pill" href="/">‹ Tilbake</a>
+          <span class="gp-bar-right">
+            <span id="save-status" class="pill save-status" aria-live="polite"></span>
+            <a id="done" class="pill" href="/">Ferdig</a>
+          </span>
+        </div>
+        <div id="hero-empty" class="hero-empty">
           <button id="add-image" class="photo-button" type="button">📷 Legg til bilde</button>
         </div>
         <div id="hero-tools" class="hero-tools" hidden>
           <button id="replace-image" class="tool" type="button">Bytt bilde</button>
           <button id="remove-image" class="tool" type="button">Fjern</button>
         </div>
-      </div>
+      </header>
+
+      <div class="gp-sheet">
+      <p id="admin-note" class="admin-note" hidden>Adminmodus – du redigerer en gruppe som ikke er din.</p>
+
+      <input id="name" class="field name-field" type="text" placeholder="Navn på gruppen" aria-label="Navn på gruppen">
 
       <textarea id="description" class="field description" rows="4"
-        placeholder="Beskrivelse – for eksempel hvordan man kommer seg dit, hvor nøkkelen ligger, eller hva gjester bør vite."
+        placeholder="Beskrivelse – for eksempel hvordan man kommer seg dit, parkering, eller hva gjester bør vite."
         aria-label="Beskrivelse"></textarea>
 
       <section class="lists">
-        <h2>Sjekklister</h2>
+        <h2 class="gp-section-title">Sjekklister</h2>
         <div id="lists"></div>
         <form id="new-list" class="new-item">
           <input id="new-list-title" class="text-input" type="text" placeholder="Navn på ny liste" aria-label="Navn på ny liste" required>
@@ -77,6 +78,7 @@
         <p class="muted">Sletter gruppesiden, alle listene og alle bildene. Kan ikke angres.</p>
         <button id="delete-group" class="button danger" type="button">Slett gruppen</button>
       </section>
+      </div>
     </article>
   </main>
   <input id="file" type="file" accept="image/*" hidden>

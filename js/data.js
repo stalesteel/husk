@@ -25,7 +25,7 @@ export async function getList(id) {
 // administrator får se alle grupper fra databasen.
 export async function getMyGroups(userId) {
   const { data, error } = await supabase.from('groups')
-    .select('id, name, owner_id, group_editors(user_id)')
+    .select('id, name, owner_id, image_path, lists(count), group_editors(user_id)')
     .order('name');
   if (error) throw error;
   return data.filter((group) => group.owner_id === userId

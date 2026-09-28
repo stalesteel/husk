@@ -196,3 +196,156 @@
 .edit-section p { margin: 0 0 4px; }
 
 .button.danger { background: var(--error); color: var(--surface); }
+
+/* ---------------------------------------------------------------------------
+   Gruppesiden: bildet av stedet øverst, helt ut til kantene, og innholdet på
+   et ark som legger seg litt inn over bildekanten. Brukes av både gruppesiden
+   og redigeringen av den, så eieren ser det gjestene ser. Mangler bildet,
+   blir toppen en rolig grønn flate.
+   --------------------------------------------------------------------------- */
+
+.gp {
+  max-width: 640px;
+  margin: 0 auto;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 40px);
+}
+
+.gp-message { padding: calc(env(safe-area-inset-top) + 24px) 20px; }
+
+.gp-hero {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1f6f4a 0%, #3f9a6c 55%, #8cc9a4 100%);
+}
+.gp-hero.no-image {
+  aspect-ratio: auto;
+  height: calc(env(safe-area-inset-top) + 132px);
+}
+.gp-hero > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* På brede skjermer står siden som et kort midt på. */
+@media (min-width: 672px) {
+  .gp { padding-top: 24px; }
+  .gp-hero { border-radius: 24px; }
+  .gp-sheet { border-radius: 24px; margin-left: 12px; margin-right: 12px; }
+}
+
+/* Navigasjon oppå bildet: små mørke merkelapper som er lesbare på alle bilder. */
+.gp-bar {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 12px);
+  left: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gp-bar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.gp-bar > .pill:last-child { margin-left: auto; }
+.pill:empty { display: none; }
+.pill.save-status { font-weight: 400; font-size: 0.875rem; }
+.pill.save-status.error { background: var(--error); color: var(--surface); font-weight: 600; }
+
+.gp-sheet {
+  position: relative;
+  margin-top: -24px;
+  padding: 26px 20px 8px;
+  border-radius: 24px 24px 0 0;
+  background: var(--bg);
+}
+
+.gp-sheet h1 {
+  margin: 0 0 12px;
+  font-size: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.gp-sheet .description { margin: 0; color: var(--text); }
+
+.gp-section-title {
+  margin: 32px 0 4px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Listene: store grønne kort med hake og pil, så det er tydelig at de trykkes på. */
+.list-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  margin-top: 10px;
+  padding: 12px 14px 12px 12px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(31, 111, 74, 0.18);
+}
+.list-card:active { transform: scale(0.99); }
+
+.card-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.card-icon svg { width: 22px; height: 22px; }
+
+.card-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.card-chevron { flex: none; font-size: 1.625rem; line-height: 1; opacity: 0.75; }
+
+/* Redigeringen: bildeverktøy nede til høyre i bildet, over arket. */
+.gp .hero-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: 24px;
+}
+.gp .photo-button {
+  border-color: rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.15);
+}
+.gp .hero-tools {
+  top: auto;
+  bottom: 36px;
+  right: 12px;
+}
+.gp .name-field { margin-bottom: 12px; }
+.gp .gp-section-title { font-size: 0.8125rem; margin: 32px 0 4px; }
+.gp .lists { margin-top: 0; }

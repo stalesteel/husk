@@ -14,6 +14,15 @@ export function el(tag, props = {}, ...children) {
   return node;
 }
 
+// Haken som brukes som ikon og logo. SVG kan ikke lages med el(), så den
+// settes inn som fast markup (ingen tekst fra brukere).
+export function checkIcon(className = 'card-icon') {
+  const span = el('span', { class: className, 'aria-hidden': 'true' });
+  span.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75"'
+    + ' stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  return span;
+}
+
 // Gjør lenker i vanlig tekst klikkbare, og åpner dem i en ny fane. Gir en
 // liste med tekst og lenker til append(); teksten settes aldri som HTML.
 // Tar med http(s)://… og www.…, men ikke tegnsetting rett etter lenken.
