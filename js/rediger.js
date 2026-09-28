@@ -212,6 +212,51 @@ function trackCurrentSection() {
 }
 
 // ---------------------------------------------------------------------------
+// Skrivemodus (se rediger.css): mens et tekstfelt i et steg har fokus, krymper
+// siden til høyden over tastaturet, og teksten får plassen.
+// ---------------------------------------------------------------------------
+
+function setupWritingMode() {
+  const viewport = window.visualViewport;
+  const writing = () => document.body.classList.contains('writing');
+
+  const sync = () => {
+    document.documentElement.style.setProperty('--vvh', `${viewport?.height ?? innerHeight}px`);
+    if (!writing()) return;
+    // iPhone skyver siden opp for å vise feltet. Siden passer nå over
+    // tastaturet, så den legges tilbake, og steget holdes på plass.
+    window.scrollTo(0, 0);
+    stepsEl.scrollTop = current * stepsEl.clientHeight;
+  };
+  viewport?.addEventListener('resize', sync);
+  viewport?.addEventListener('scroll', sync);
+  sync();
+
+  const isStepField = (node) => node?.closest?.('.step .field');
+
+  stepsEl.addEventListener('focusin', (event) => {
+    if (!isStepField(event.target)) return;
+    document.body.classList.add('writing');
+    requestAnimationFrame(sync);
+  });
+
+  // Fokus kan flytte fra tittel til beskrivelse; modusen slutter først når
+  // ingen av feltene har det.
+  stepsEl.addEventListener('focusout', () => {
+    setTimeout(() => {
+      if (isStepField(document.activeElement)) return;
+      document.body.classList.remove('writing');
+      requestAnimationFrame(() => {
+        sync();
+        stepsEl.scrollTop = current * stepsEl.clientHeight;
+      });
+    }, 50);
+  });
+
+  $('write-done').addEventListener('click', () => document.activeElement?.blur());
+}
+
+// ---------------------------------------------------------------------------
 // Steg
 // ---------------------------------------------------------------------------
 
@@ -359,6 +404,7 @@ async function main() {
   stepsEl.hidden = false;
   renderAll(0);
   trackCurrentSection();
+  setupWritingMode();
 
   // En nyopprettet liste starter på steg 1 med markøren i tittelen.
   if (new URLSearchParams(location.search).has('ny')) {

@@ -129,6 +129,59 @@
 .step-tools button:disabled { opacity: 0.35; cursor: default; }
 .step-tools .danger { color: var(--v-remaining); border-color: #5a2a2a; }
 
+/* ---------------------------------------------------------------------------
+   Skrivemodus: mens et tekstfelt i et steg har fokus. Tastaturet på iPhone
+   legger seg oppå siden i stedet for å krympe den, så siden krympes selv til
+   den synlige høyden (--vvh, satt fra visualViewport). Bildet blir en stripe,
+   knappene forsvinner og tekstfeltene får plassen. Sveiping er av.
+   --------------------------------------------------------------------------- */
+
+.write-done {
+  display: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body.viewer.writing {
+  height: var(--vvh, 100dvh);
+  min-height: 0; /* ellers holder base.css siden på full skjermhøyde */
+}
+
+.writing #counter,
+.writing #done { display: none; }
+.writing .write-done { display: inline-block; }
+
+.writing .steps { overflow: hidden; }
+
+.writing .step.editing .media {
+  aspect-ratio: auto;
+  height: 18%;
+  max-height: 120px;
+}
+.writing .step.editing .media:not(:has(img)) { display: none; }
+.writing .slides { overflow: hidden; }
+.writing .media-tools,
+.writing .dots,
+.writing .take-photo,
+.writing .step.editing .actions { display: none; }
+
+.writing .step.editing .text {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.writing .editing textarea.description {
+  height: auto !important;
+  flex: 1 1 auto;
+  min-height: 4.5em;
+  overflow-y: auto;
+}
+
 /* Siste side: innstillinger for listen. */
 .settings label.setting { display: block; margin: 0 0 6px; font-weight: 600; }
 
