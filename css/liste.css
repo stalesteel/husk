@@ -2,11 +2,6 @@
    gir best kontrast i sollys. */
 
 body.viewer {
-  /* Sjekklisten er et mobilformat. På brede skjermer (PC, liggende telefon)
-     vises den i en kolonne med telefonform, aldri bredere enn at kvadratet
-     pluss tekst og knapp får plass i høyden. Da blir utsnittet det samme som
-     på mobil. På en telefon i stående format er kolonnen like bred som skjermen. */
-  --column: min(100%, 480px, calc((100dvh - 56px) * 0.62));
   --v-bg: #000000;
   --v-text: #f5f5f3;
   --v-muted: #b5b5b0;
@@ -24,9 +19,6 @@ body.viewer {
 
 .topbar {
   flex: none;
-  width: 100%;
-  max-width: var(--column);
-  margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -67,9 +59,6 @@ body.viewer {
 }
 
 .viewer-message {
-  width: 100%;
-  max-width: var(--column);
-  margin: 0 auto;
   padding: 24px 16px;
   color: var(--v-muted);
 }
@@ -86,9 +75,6 @@ body.viewer {
 .step,
 .summary {
   height: 100%;
-  width: 100%;
-  max-width: var(--column);
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
@@ -267,3 +253,56 @@ body.viewer {
   color: var(--v-remaining);
 }
 .summary .check.secondary { text-align: center; margin-top: 28px; }
+
+/* ---------------------------------------------------------------------------
+   PC (mus og bred skjerm): bildet til venstre og fyller høyden, teksten og
+   knappene til høyre. Bildet er fortsatt kvadratisk, med samme utsnitt som
+   på mobil. Styres av om det finnes en mus, ikke av høyden, så mobilen
+   påvirkes aldri – heller ikke når tastaturet endrer den synlige høyden.
+   --------------------------------------------------------------------------- */
+
+@media (hover: hover) and (pointer: fine) and (min-width: 760px) {
+  .topbar,
+  .viewer-message {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: auto minmax(300px, 1fr);
+    grid-template-rows: 1fr auto;
+    column-gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 8px 24px 24px;
+  }
+
+  /* Kvadratet fyller høyden, men gir alltid minst 300 px til teksten. */
+  .step .media {
+    grid-row: 1 / 3;
+    align-self: center;
+    width: auto;
+    height: min(100%, calc(100vw - 48px - 40px - 300px));
+    max-height: none;
+    border-radius: 14px;
+  }
+
+  /* Faden binder bildet til teksten under det på mobil. Her står teksten ved
+     siden av, så den trengs ikke. */
+  .step .media::after { display: none; }
+
+  .step .text {
+    align-self: start;
+    max-height: 100%;
+    padding: 4px 0 0;
+  }
+
+  .step .actions { padding: 16px 0 0; }
+
+  .summary {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+}
