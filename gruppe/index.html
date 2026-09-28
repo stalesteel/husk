@@ -27,7 +27,7 @@
     import { canEdit } from '/js/admin.js';
     import { getUser } from '/js/auth.js';
     import { getGroup, imageUrl } from '/js/data.js';
-    import { el } from '/js/dom.js';
+    import { el, linkify } from '/js/dom.js';
 
     const $ = (id) => document.getElementById(id);
 
@@ -49,7 +49,7 @@
     if (group) {
       document.title = `${group.name} – Husk Klommestein`;
       $('name').textContent = group.name;
-      $('description').textContent = group.description;
+      $('description').replaceChildren(...linkify(group.description));
       $('description').hidden = !group.description;
       // Innloggede kommer tilbake til gruppene sine. Gjester fra en QR-kode har
       // ingenting å se på forsiden, så de får ikke lenken.

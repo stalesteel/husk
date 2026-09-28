@@ -38,6 +38,7 @@
 }
 
 .description { white-space: pre-line; font-size: 1.0625rem; margin: 16px 0 0; }
+.description a { overflow-wrap: anywhere; }
 .lists { margin-top: 32px; }
 .lists .button { margin-top: 12px; }
 
