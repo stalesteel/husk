@@ -47,6 +47,24 @@
         </form>
       </section>
 
+      <section id="editors-section" class="edit-section" hidden>
+        <h2>Hvem kan redigere</h2>
+        <p class="muted">Du eier gruppen. De du legger til her, kan redigere gruppesiden og alle listene, men ikke slette gruppen eller gi andre tilgang.</p>
+        <div id="editors"></div>
+        <form id="new-editor" class="new-item">
+          <input id="new-editor-email" class="text-input" type="email" inputmode="email" autocomplete="off"
+                 placeholder="E-postadresse" aria-label="E-postadresse til ny redaktør" required>
+          <button class="button" type="submit">Gi redigeringstilgang</button>
+          <p id="editor-message" role="status" hidden></p>
+        </form>
+      </section>
+
+      <section id="leave-section" class="edit-section" hidden>
+        <h2>Du er redaktør</h2>
+        <p class="muted">Du kan redigere denne gruppen fordi eieren har gitt deg tilgang.</p>
+        <button id="leave" class="button secondary" type="button">Fjern meg som redaktør</button>
+      </section>
+
       <section class="edit-section">
         <h2>QR-kode</h2>
         <p class="muted">Heng denne på stedet. Den åpner gruppesiden, så gjesten selv velger riktig liste.</p>

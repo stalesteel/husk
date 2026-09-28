@@ -3,8 +3,9 @@
 
 import { getUser } from './auth.js';
 import {
-  createList, deleteGroup, deleteList, getGroup, getGroupOwner, imageUrl,
-  insertStep, listImagePaths, removeFiles, saveOrder, updateGroup, uploadImage,
+  addGroupEditor, createList, deleteGroup, deleteList, getGroup, getGroupEditors,
+  getGroupOwner, imageUrl, insertStep, listImagePaths, removeFiles, removeGroupEditor,
+  saveOrder, updateGroup, uploadImage,
 } from './data.js';
 import { el } from './dom.js';
 import { prepareImage } from './images.js';
@@ -171,6 +172,83 @@ function setupNewList() {
 }
 
 // ---------------------------------------------------------------------------
+// Redaktører
+// Eieren ser og endrer hvem som kan redigere. En redaktør kan trekke seg.
+// ---------------------------------------------------------------------------
+
+function editorMessage(text, isError = false) {
+  const message = $('editor-message');
+  message.textContent = text ?? '';
+  message.className = isError ? 'error' : 'muted';
+  message.hidden = !text;
+}
+
+async function renderEditors() {
+  let editors;
+  try {
+    editors = await getGroupEditors(group.id);
+  } catch {
+    $('editors').replaceChildren(el('p', { class: 'error' }, 'Kunne ikke hente redaktørene.'));
+    return;
+  }
+  $('editors').replaceChildren(...(editors.length
+    ? editors.map((editor) => el('div', { class: 'editor-row' },
+        el('span', {}, editor.email),
+        el('button', { type: 'button', onclick: () => removeEditor(editor) }, 'Fjern')))
+    : [el('p', { class: 'muted' }, 'Ingen andre enn deg kan redigere ennå.')]));
+}
+
+async function removeEditor(editor) {
+  if (!confirm(`Fjerne redigeringstilgangen til ${editor.email}?`)) return;
+  editorMessage(null);
+  await save(removeGroupEditor(group.id, editor.user_id));
+  renderEditors();
+}
+
+function setupEditors(user) {
+  $('new-editor').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = $('new-editor-email').value.trim();
+    if (!email) return;
+    if (email.toLowerCase() === user.email.toLowerCase()) {
+      editorMessage('Du eier gruppen, så du kan allerede redigere.', true);
+      return;
+    }
+
+    const button = $('new-editor').querySelector('button');
+    button.disabled = true;
+    editorMessage(null);
+    try {
+      await addGroupEditor(group.id, email);
+      $('new-editor-email').value = '';
+      // Det sendes ingen e-post; tilgangen gjelder med en gang.
+      editorMessage(`${email} kan nå redigere. Gi beskjed – gruppen dukker opp på forsiden når personen logger inn.`);
+      renderEditors();
+    } catch (error) {
+      editorMessage(error.code === 'P0002'
+        ? `Fant ingen bruker med ${email}. Personen må først inviteres til Husk Klommestein.`
+        : 'Kunne ikke gi tilgang. Sjekk nettet og prøv igjen.', true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+function setupLeave(user) {
+  $('leave').addEventListener('click', async () => {
+    if (!confirm(`Fjerne deg selv som redaktør av «${group.name}»? Du kan ikke redigere den etterpå.`)) return;
+    await settle();
+    try {
+      await removeGroupEditor(group.id, user.id);
+    } catch {
+      alert('Kunne ikke fjerne deg. Sjekk nettet og prøv igjen.');
+      return;
+    }
+    location.assign(`/gruppe/?id=${group.id}`);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Sletting av hele gruppen (bare eieren)
 // ---------------------------------------------------------------------------
 
@@ -227,7 +305,14 @@ async function main() {
   renderLists();
   setupNewList();
   setupDelete();
-  $('danger').hidden = (await getGroupOwner(group.id).catch(() => null)) !== user.id;
+  setupEditors(user);
+  setupLeave(user);
+
+  const isOwner = (await getGroupOwner(group.id).catch(() => null)) === user.id;
+  $('danger').hidden = !isOwner;
+  $('editors-section').hidden = !isOwner;
+  $('leave-section').hidden = isOwner;
+  if (isOwner) renderEditors();
 
   $('message').hidden = true;
   $('group').hidden = false;

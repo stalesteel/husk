@@ -69,6 +69,19 @@ export const updateGroup = (id, fields) => change(supabase.from('groups').update
 export const deleteGroup = (id) => change(supabase.from('groups').delete().eq('id', id));
 export const deleteList = (id) => change(supabase.from('lists').delete().eq('id', id));
 
+// Redaktørene i en gruppe, med e-post. Tom for andre enn eieren.
+export const getGroupEditors = (groupId) => run(supabase.rpc('get_group_editors', { p_group_id: groupId }));
+
+// Gir en eksisterende bruker redigeringstilgang. Feilen har code 'P0002'
+// når ingen bruker har den e-postadressen.
+export const addGroupEditor = (groupId, email) =>
+  run(supabase.rpc('add_group_editor', { p_group_id: groupId, p_email: email }));
+
+export const removeGroupEditor = (groupId, userId) => change(supabase.from('group_editors')
+  .delete()
+  .eq('group_id', groupId)
+  .eq('user_id', userId));
+
 // Alle bildefilene i en liste, for å slette dem når listen slettes.
 export async function listImagePaths(listId) {
   const list = await getList(listId);
