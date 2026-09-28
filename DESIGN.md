@@ -68,6 +68,11 @@ inviteres fra Supabase-dashbordet, og logger deretter inn med engangslenke. Appe
 aldri opprette brukere selv når en ukjent e-postadresse skrives inn. Å få konto er noe
 annet enn å få redigere en bestemt gruppe — det gir eieren inne i appen.
 
+**Administrator.** `stale@klommestein.no` er administrator (tabellen `admins`) og har full
+tilgang til alle grupper, for å kunne rydde. Tilgangen gis av tilgangsreglene i databasen.
+I appen slås den på med bryteren «Adminmodus» på forsiden; ellers ser administratoren
+appen som alle andre.
+
 ## Sluttbrukerens visning
 
 Ett sjekkpunkt fyller hele skjermen. **Vertikal sveip bytter steg**, med scroll-snap så
@@ -101,7 +106,8 @@ har fire bilder av ulike områder som skal ryddes, i rekkefølge — uten at ste
 i fire avkryssingspunkter.
 
 Beskrivelsen hører til hele steget. I tillegg kan hvert bilde ha en **valgfri kort
-etikett** på to-tre ord («Salongbordet», «Akterdekk»), vist på bildet nede til venstre. Steg med
+etikett** på to-tre ord («Salongbordet», «Akterdekk»), vist øverst til venstre på bildet, så bred som teksten, og aldri lengre enn at den får
+plass på én linje på en liten telefon. Steg med
 ett bilde bruker den aldri, så det enkle forblir enkelt.
 
 ### To tellere, ulikt visuelt språk
