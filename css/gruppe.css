@@ -78,6 +78,7 @@
 }
 
 .editing-group textarea.description {
+  min-height: 5em;
   font: inherit;
   font-size: 1.0625rem;
   line-height: 1.5;

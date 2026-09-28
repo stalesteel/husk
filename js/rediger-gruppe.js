@@ -45,7 +45,8 @@ function setupText() {
     group.description = description.value;
     later('description', () => updateGroup(group.id, { description: group.description.trim() }));
   });
-  requestAnimationFrame(fit);
+  // Høyden kan først regnes ut når siden vises (se main).
+  return fit;
 }
 
 // ---------------------------------------------------------------------------
@@ -300,7 +301,7 @@ async function main() {
   $('group-qr').href = `/qr/?gruppe=${group.id}`;
   for (const link of [$('back'), $('done'), $('group-qr')]) leaveVia(link);
 
-  setupText();
+  const fitDescription = setupText();
   setupImage();
   renderLists();
   setupNewList();
@@ -321,6 +322,7 @@ async function main() {
 
   $('message').hidden = true;
   $('group').hidden = false;
+  fitDescription();
 }
 
 main();
