@@ -60,9 +60,9 @@ function renderStep(step, index) {
   const section = el('section', { class: 'step', 'aria-label': `Steg ${index + 1}: ${stepTitle(step)}` },
     el('div', { class: 'media' },
       slides,
-      state.dots.length ? el('div', { class: 'dots' }, state.dots) : null),
+      state.dots.length ? el('div', { class: 'dots' }, state.dots) : null,
+      state.label),
     el('div', { class: 'text' },
-      state.label,
       el('h2', { class: 'step-title' }, stepTitle(step)),
       step.description ? el('p', { class: 'description' }, step.description) : null),
     el('div', { class: 'actions' }, state.button));

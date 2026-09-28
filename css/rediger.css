@@ -98,15 +98,23 @@
   white-space: pre-wrap;
 }
 
-.editing input.image-label {
+/* Etikettfeltet står på bildet, der etiketten vises (se .image-label i
+   liste.css), med samme form, pluss en ramme som viser at det kan redigeres. */
+.editing input.field.image-label {
+  width: calc(50% - 72px);
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
   font: inherit;
   font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
+  line-height: 1.4;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
 }
-.editing input.image-label::placeholder { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.editing input.field.image-label:focus { box-shadow: inset 0 0 0 2px #ffffff; }
+.editing input.field.image-label::placeholder { color: rgba(255, 255, 255, 0.75); font-weight: 400; }
 
 .step-tools {
   display: flex;

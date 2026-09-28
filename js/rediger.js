@@ -82,7 +82,7 @@ function renderStep(step, index) {
   const label = images.length > 1
     ? el('input', {
         class: 'field image-label', type: 'text', maxlength: 40,
-        placeholder: 'Etikett for bildet (valgfri)', 'aria-label': 'Etikett for bildet',
+        placeholder: '+ Etikett', 'aria-label': 'Etikett for bildet (valgfri)',
       })
     : null;
   label?.addEventListener('input', () => {
@@ -138,8 +138,9 @@ function renderStep(step, index) {
     el('div', { class: 'media' },
       slides,
       dots.length ? el('div', { class: 'dots' }, dots) : null,
+      label,
       tools),
-    el('div', { class: 'text' }, label, title, description),
+    el('div', { class: 'text' }, title, description),
     el('div', { class: 'actions' },
       el('button', {
         class: 'check', type: 'button',

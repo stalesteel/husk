@@ -101,7 +101,7 @@ har fire bilder av ulike områder som skal ryddes, i rekkefølge — uten at ste
 i fire avkryssingspunkter.
 
 Beskrivelsen hører til hele steget. I tillegg kan hvert bilde ha en **valgfri kort
-etikett** på to-tre ord («Salongbordet», «Akterdekk»), vist over beskrivelsen. Steg med
+etikett** på to-tre ord («Salongbordet», «Akterdekk»), vist på bildet nede til venstre. Steg med
 ett bilde bruker den aldri, så det enkle forblir enkelt.
 
 ### To tellere, ulikt visuelt språk
