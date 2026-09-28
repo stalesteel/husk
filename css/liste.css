@@ -2,6 +2,11 @@
    gir best kontrast i sollys. */
 
 body.viewer {
+  /* Sjekklisten er et mobilformat. På brede skjermer (PC, liggende telefon)
+     vises den i en kolonne med telefonform, aldri bredere enn at kvadratet
+     pluss tekst og knapp får plass i høyden. Da blir utsnittet det samme som
+     på mobil. På en telefon i stående format er kolonnen like bred som skjermen. */
+  --column: min(100%, 480px, calc((100dvh - 56px) * 0.62));
   --v-bg: #000000;
   --v-text: #f5f5f3;
   --v-muted: #b5b5b0;
@@ -19,6 +24,9 @@ body.viewer {
 
 .topbar {
   flex: none;
+  width: 100%;
+  max-width: var(--column);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -59,6 +67,9 @@ body.viewer {
 }
 
 .viewer-message {
+  width: 100%;
+  max-width: var(--column);
+  margin: 0 auto;
   padding: 24px 16px;
   color: var(--v-muted);
 }
@@ -75,6 +86,9 @@ body.viewer {
 .step,
 .summary {
   height: 100%;
+  width: 100%;
+  max-width: var(--column);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;

@@ -89,6 +89,11 @@ gjestene ser. Kvadrat er valgt fordi det gir plass til tittel og tre-fire linjer
 også på de minste telefonene (iPhone SE). Mobilbilder beskjæres litt oppe og nede, men det
 ser eieren i det bildet tas. Faden ligger i nederste kant av kvadratet.
 
+**På brede skjermer vises sjekklisten som en telefon.** På PC og liggende telefon legges
+stegene i en kolonne midt på sort bakgrunn, aldri bredere enn at kvadratet pluss tekst og
+knapp får plass i høyden. Slik forblir bildet kvadratisk, og eieren ser også på PC nøyaktig
+det gjestene ser på mobilen.
+
 ### Flere bilder per steg
 
 Et steg kan ha flere bilder, med **horisontal sveip mellom dem**. Eksempel: «Opprydding»

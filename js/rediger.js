@@ -233,9 +233,12 @@ function setupWritingMode() {
   sync();
 
   const isStepField = (node) => node?.closest?.('.step .field');
+  // Bare med berøringsskjerm, der tastaturet dekker siden. På PC står
+  // feltene synlige, og redigeres der de står.
+  const touch = window.matchMedia('(pointer: coarse)');
 
   stepsEl.addEventListener('focusin', (event) => {
-    if (!isStepField(event.target)) return;
+    if (!touch.matches || !isStepField(event.target)) return;
     document.body.classList.add('writing');
     requestAnimationFrame(sync);
   });

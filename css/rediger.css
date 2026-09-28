@@ -2,6 +2,11 @@
    oppå. Feltene er stylet som teksten de erstatter, så eieren ser resultatet
    mens hen skriver. */
 
+/* Redigeringen har en knapperad mer enn sjekklisten (flytt og slett), så
+   kolonnen regnes ut med den ekstra høyden trukket fra. Tekstfeltene får
+   da like mye plass som teksten i sjekklisten. Bildet er fortsatt kvadratisk. */
+body.viewer.editor { --column: min(100%, 480px, calc((100dvh - 110px) * 0.62)); }
+
 .save-status {
   flex: none;
   color: var(--v-muted);
