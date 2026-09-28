@@ -6,30 +6,16 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Husk Klommestein</title>
 <link rel="stylesheet" href="/css/base.css">
-<style>
-  .group {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 32px);
-  }
-  .hero {
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    border-radius: 12px;
-    background: var(--border);
-    margin: 16px 0 20px;
-  }
-  .description { white-space: pre-line; font-size: 1.0625rem; margin: 16px 0 0; }
-  .lists { margin-top: 32px; }
-  .lists .button { margin-top: 12px; }
-</style>
+<link rel="stylesheet" href="/css/gruppe.css">
 </head>
 <body>
   <main class="group">
     <p id="message" class="muted">Et øyeblikk …</p>
     <article id="group" hidden>
+      <div class="group-top">
+        <span></span>
+        <a id="edit" hidden>Rediger</a>
+      </div>
       <h1 id="name"></h1>
       <img id="hero" class="hero" alt="" hidden>
       <p id="description" class="description"></p>
@@ -63,6 +49,10 @@
       $('name').textContent = group.name;
       $('description').textContent = group.description;
       $('description').hidden = !group.description;
+      if (group.can_edit) {
+        $('edit').href = `/rediger/gruppe/?id=${group.id}`;
+        $('edit').hidden = false;
+      }
 
       // Mangler bildet eller feiler det, vises ingenting i stedet for et ødelagt bilde.
       if (group.image_path) {

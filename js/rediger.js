@@ -9,6 +9,7 @@ import {
 } from './data.js';
 import { el } from './dom.js';
 import { prepareImage } from './images.js';
+import { flushAll, later, leaveVia, save, showStatusIn } from './saving.js';
 
 const $ = (id) => document.getElementById(id);
 const stepsEl = $('steps');
@@ -19,67 +20,7 @@ const stepsEl = $('steps');
 let list;
 let current = 0;
 
-// ---------------------------------------------------------------------------
-// Lagring
-// Tekst lagres litt etter at man har sluttet å skrive. Alt annet lagres med
-// en gang. Statusen øverst viser om noe ikke er lagret ennå.
-// ---------------------------------------------------------------------------
-
-const timers = new Map();   // nøkkel -> { timer, run }
-const inFlight = new Set();
-let failed = false;
-let changed = false;
-
-function save(promise) {
-  changed = true;
-  const tracked = promise
-    .catch((error) => { failed = true; console.error(error); })
-    .finally(() => { inFlight.delete(tracked); showStatus(); });
-  inFlight.add(tracked);
-  showStatus();
-  return tracked;
-}
-
-function later(key, run, delay = 700) {
-  clearTimeout(timers.get(key)?.timer);
-  timers.set(key, { run, timer: setTimeout(() => { timers.delete(key); save(run()); }, delay) });
-  showStatus();
-}
-
-function flushAll() {
-  for (const { timer, run } of timers.values()) {
-    clearTimeout(timer);
-    save(run());
-  }
-  timers.clear();
-}
-
-async function settle() {
-  flushAll();
-  await Promise.all(inFlight);
-}
-
-function showStatus() {
-  const status = $('save-status');
-  status.classList.toggle('error', failed);
-  if (failed) status.textContent = 'Ikke lagret – last siden på nytt';
-  else if (timers.size || inFlight.size) status.textContent = 'Lagrer …';
-  else status.textContent = changed ? 'Lagret' : '';
-}
-
-// Lenker ut av siden venter til alt er lagret.
-function leaveVia(link) {
-  link.addEventListener('click', async (event) => {
-    event.preventDefault();
-    await settle();
-    location.assign(link.href);
-  });
-}
-
-window.addEventListener('beforeunload', (event) => {
-  if (timers.size || inFlight.size) event.preventDefault();
-});
-window.addEventListener('pagehide', flushAll);
+showStatusIn($('save-status'));
 
 // ---------------------------------------------------------------------------
 // Tegning
@@ -418,6 +359,11 @@ async function main() {
   stepsEl.hidden = false;
   renderAll(0);
   trackCurrentSection();
+
+  // En nyopprettet liste starter på steg 1 med markøren i tittelen.
+  if (new URLSearchParams(location.search).has('ny')) {
+    stepsEl.querySelector('.step-title')?.focus({ preventScroll: true });
+  }
 }
 
 main();

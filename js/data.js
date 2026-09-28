@@ -49,6 +49,32 @@ async function change(query) {
   return rows;
 }
 
+// Eieren av gruppen, for å vise det bare eieren kan gjøre (slette gruppen).
+export async function getGroupOwner(id) {
+  const row = await run(supabase.from('groups').select('owner_id').eq('id', id).maybeSingle());
+  return row?.owner_id ?? null;
+}
+
+export const createGroup = (name) => run(supabase.from('groups')
+  .insert({ name })
+  .select('id')
+  .single());
+
+export const createList = (groupId, title, sortOrder) => run(supabase.from('lists')
+  .insert({ group_id: groupId, title, sort_order: sortOrder })
+  .select('id')
+  .single());
+
+export const updateGroup = (id, fields) => change(supabase.from('groups').update(fields).eq('id', id));
+export const deleteGroup = (id) => change(supabase.from('groups').delete().eq('id', id));
+export const deleteList = (id) => change(supabase.from('lists').delete().eq('id', id));
+
+// Alle bildefilene i en liste, for å slette dem når listen slettes.
+export async function listImagePaths(listId) {
+  const list = await getList(listId);
+  return list ? list.steps.flatMap((step) => step.images.map((image) => image.path)) : [];
+}
+
 export const updateList = (id, fields) => change(supabase.from('lists').update(fields).eq('id', id));
 export const updateStep = (id, fields) => change(supabase.from('steps').update(fields).eq('id', id));
 export const deleteStep = (id) => change(supabase.from('steps').delete().eq('id', id));

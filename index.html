@@ -9,6 +9,9 @@
 <style>
   .page { text-align: center; }
   #groups { margin-top: 24px; }
+  #new-group { margin-top: 24px; text-align: left; }
+  #new-group input { width: 100%; font: inherit; font-size: 1.0625rem; padding: 14px 12px;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); }
   #status { margin-top: 32px; }
 </style>
 </head>
@@ -17,12 +20,17 @@
     <h1>Husk Klommestein</h1>
     <p class="muted">Sjekklister med bilder. Under arbeid.</p>
     <nav id="groups" aria-label="Mine grupper"></nav>
+    <button id="show-new-group" class="button secondary" type="button" hidden>+ Ny gruppe</button>
+    <form id="new-group" hidden>
+      <input id="new-group-name" type="text" placeholder="Navn, f.eks. «Hytta på Skjeggestad»" aria-label="Navn på gruppen" required>
+      <button class="button" type="submit">Lag gruppen</button>
+    </form>
     <p id="status" class="muted"></p>
   </main>
 
   <script type="module">
     import { getUser, hasLinkError } from '/js/auth.js';
-    import { getMyGroups } from '/js/data.js';
+    import { createGroup, getMyGroups } from '/js/data.js';
     import { el } from '/js/dom.js';
 
     // Invitasjoner lander her. En utløpt lenke sendes videre til innloggingen,
@@ -38,6 +46,30 @@
       const groups = await getMyGroups().catch(() => []);
       document.getElementById('groups').append(...groups.map((group) =>
         el('a', { class: 'button', href: `/gruppe/?id=${group.id}` }, group.name)));
+
+      // Ny gruppe: blir din, og åpnes i redigeringen så du kan legge inn
+      // bilde, beskrivelse og lister.
+      const show = document.getElementById('show-new-group');
+      const form = document.getElementById('new-group');
+      show.hidden = false;
+      show.addEventListener('click', () => {
+        show.hidden = true;
+        form.hidden = false;
+        document.getElementById('new-group-name').focus();
+      });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const name = document.getElementById('new-group-name').value.trim();
+        if (!name) return;
+        form.querySelector('button').disabled = true;
+        try {
+          const { id } = await createGroup(name);
+          location.assign(`/rediger/gruppe/?id=${id}`);
+        } catch {
+          form.querySelector('button').disabled = false;
+          alert('Kunne ikke lage gruppen. Sjekk nettet og prøv igjen.');
+        }
+      });
     } else {
       status.innerHTML = '<a href="/logg-inn/">Logg inn</a>';
     }
