@@ -175,6 +175,10 @@ body.viewer.writing {
 }
 .writing .step.editing .media:not(:has(img)) { display: none; }
 .writing .slides { overflow: hidden; }
+/* Prikkene er skjult her, så etikettfeltet kan ligge nede ved kanten og får
+   plass i den lave stripen. */
+.writing .editing input.field.image-label { bottom: 10px; }
+
 .writing .media-tools,
 .writing .dots,
 .writing .take-photo,
