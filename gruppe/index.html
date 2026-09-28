@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Husk Klommestein</title>
+<link rel="stylesheet" href="/css/base.css">
+<style>
+  .group {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 32px);
+  }
+  .hero {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    background: var(--border);
+    margin: 16px 0 20px;
+  }
+  .description { white-space: pre-line; font-size: 1.0625rem; margin: 16px 0 0; }
+  .lists { margin-top: 32px; }
+  .lists .button { margin-top: 12px; }
+</style>
+</head>
+<body>
+  <main class="group">
+    <p id="message" class="muted">Et øyeblikk …</p>
+    <article id="group" hidden>
+      <h1 id="name"></h1>
+      <img id="hero" class="hero" alt="" hidden>
+      <p id="description" class="description"></p>
+      <nav id="lists" class="lists" aria-label="Sjekklister"></nav>
+    </article>
+  </main>
+
+  <script type="module">
+    import { getGroup, imageUrl } from '/js/data.js';
+    import { el } from '/js/dom.js';
+
+    const $ = (id) => document.getElementById(id);
+
+    function showMessage(text) {
+      $('message').textContent = text;
+      $('message').hidden = false;
+      $('group').hidden = true;
+    }
+
+    let group;
+    try {
+      group = await getGroup(new URLSearchParams(location.search).get('id'));
+    } catch {
+      showMessage('Kunne ikke laste siden. Sjekk nettet og prøv igjen.');
+    }
+
+    if (group === null) showMessage('Fant ikke denne siden. Sjekk at lenken er riktig.');
+
+    if (group) {
+      document.title = `${group.name} – Husk Klommestein`;
+      $('name').textContent = group.name;
+      $('description').textContent = group.description;
+      $('description').hidden = !group.description;
+
+      // Mangler bildet eller feiler det, vises ingenting i stedet for et ødelagt bilde.
+      if (group.image_path) {
+        $('hero').addEventListener('error', () => { $('hero').hidden = true; });
+        $('hero').src = imageUrl(group.image_path);
+        $('hero').hidden = false;
+      }
+
+      $('lists').append(...group.lists.map((list) =>
+        el('a', { class: 'button', href: `/liste/?id=${list.id}` }, list.title)));
+      if (group.lists.length === 0) {
+        $('lists').append(el('p', { class: 'muted' }, 'Ingen sjekklister ennå.'));
+      }
+
+      $('message').hidden = true;
+      $('group').hidden = false;
+    }
+  </script>
+</body>
+</html>

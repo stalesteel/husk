@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/css/base.css">
 <style>
   .page { text-align: center; }
+  #groups { margin-top: 24px; }
   #status { margin-top: 32px; }
 </style>
 </head>
@@ -15,11 +16,14 @@
   <main class="page">
     <h1>Husk Klommestein</h1>
     <p class="muted">Sjekklister med bilder. Under arbeid.</p>
+    <nav id="groups" aria-label="Mine grupper"></nav>
     <p id="status" class="muted"></p>
   </main>
 
   <script type="module">
     import { getUser, hasLinkError } from '/js/auth.js';
+    import { getMyGroups } from '/js/data.js';
+    import { el } from '/js/dom.js';
 
     // Invitasjoner lander her. En utløpt lenke sendes videre til innloggingen,
     // som forklarer hva som skjedde.
@@ -30,6 +34,10 @@
     if (user) {
       status.innerHTML = 'Innlogget som <strong></strong> · <a href="/logg-inn/">Konto</a>';
       status.querySelector('strong').textContent = user.email;
+
+      const groups = await getMyGroups().catch(() => []);
+      document.getElementById('groups').append(...groups.map((group) =>
+        el('a', { class: 'button', href: `/gruppe/?id=${group.id}` }, group.name)));
     } else {
       status.innerHTML = '<a href="/logg-inn/">Logg inn</a>';
     }
