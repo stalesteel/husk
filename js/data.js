@@ -81,13 +81,39 @@ export const updateGroup = (id, fields) => change(supabase.from('groups').update
 export const deleteGroup = (id) => change(supabase.from('groups').delete().eq('id', id));
 export const deleteList = (id) => change(supabase.from('lists').delete().eq('id', id));
 
-// Redaktørene i en gruppe, med e-post. Tom for andre enn eieren.
+// Redaktørene i en gruppe, med e-post og om de ennå ikke har tatt imot
+// invitasjonen (invited). Tom for andre enn eieren.
 export const getGroupEditors = (groupId) => run(supabase.rpc('get_group_editors', { p_group_id: groupId }));
 
-// Gir en eksisterende bruker redigeringstilgang. Feilen har code 'P0002'
-// når ingen bruker har den e-postadressen.
-export const addGroupEditor = (groupId, email) =>
-  run(supabase.rpc('add_group_editor', { p_group_id: groupId, p_email: email }));
+// Inviterer via Edge Function-en «inviter» (supabase/functions/inviter), som
+// legger til en eksisterende bruker, eller sender invitasjon til en ny.
+//   invite(email, 'editor', groupId) – redaktør i en gruppe
+//   invite(email, 'full')            – full bruker (bare administratorer)
+// Gir { invited } (true når det ble sendt e-post), eller kaster en feil med
+// en melding som kan vises.
+export async function invite(email, role, groupId) {
+  const { data, error } = await supabase.functions.invoke('inviter', {
+    body: { email, role, group_id: groupId },
+  });
+  if (!error) return data;
+  let message = 'Kunne ikke invitere. Sjekk nettet og prøv igjen.';
+  try {
+    const body = await error.context.json();
+    if (body?.message) message = body.message;
+  } catch { /* ingen melding fra funksjonen */ }
+  throw new Error(message);
+}
+
+// Om den innloggede kan lage grupper (full bruker eller administrator).
+export async function canCreateGroups() {
+  const { data, error } = await supabase.rpc('can_create_groups');
+  return !error && data === true;
+}
+
+// Admin-siden
+export const adminListUsers = () => run(supabase.rpc('admin_list_users'));
+export const adminSetFull = (userId, on) => run(supabase.rpc('admin_set_full', { p_user_id: userId, p_full: on }));
+export const adminSetAdmin = (userId, on) => run(supabase.rpc('admin_set_admin', { p_user_id: userId, p_admin: on }));
 
 export const removeGroupEditor = (groupId, userId) => change(supabase.from('group_editors')
   .delete()

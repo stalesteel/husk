@@ -63,15 +63,23 @@ har skrudd av vannet. Men ingen skal kunne endre listen uten å være logget inn
 For innlogging anbefales e-post med engangslenke — ingen passord å glemme eller
 administrere for en familie- og menighetskrets.
 
-**Kontoer kun ved invitasjon.** Åpen registrering er slått av i Supabase. Nye brukere
-inviteres fra Supabase-dashbordet, og logger deretter inn med engangslenke. Appen skal
-aldri opprette brukere selv når en ukjent e-postadresse skrives inn. Å få konto er noe
-annet enn å få redigere en bestemt gruppe — det gir eieren inne i appen.
+**Kontoer kun ved invitasjon, med tre roller.** Åpen registrering er slått av i Supabase.
+Appen oppretter aldri brukere når en ukjent e-postadresse skrives inn ved innlogging.
 
-**Administrator.** `stale@klommestein.no` er administrator (tabellen `admins`) og har full
-tilgang til alle grupper, for å kunne rydde. Tilgangen gis av tilgangsreglene i databasen.
-I appen slås den på med bryteren «Adminmodus» på forsiden; ellers ser administratoren
-appen som alle andre.
+| Rolle | Kan | Blir til ved |
+|---|---|---|
+| Administrator | Alt, i alle grupper, og gi roller | En administrator gjør deg til det (admin-siden) |
+| Full bruker | Lage egne grupper | Invitasjon fra en administrator (admin-siden) |
+| Redaktør | Redigere grupper de er lagt til i | Eieren skriver e-postadressen i gruppen |
+
+Eieren trenger ikke vite om personen har konto: finnes den, legges personen bare til;
+finnes den ikke, sendes en invitasjon, og den nye brukeren blir redaktør. Invitasjonene
+sendes av Edge Function-en `inviter`, fordi de krever den hemmelige nøkkelen, som ikke kan
+ligge i nettleseren.
+
+`stale@klommestein.no` er administrator. Administratorens tilgang gis av tilgangsreglene i
+databasen, men i appen slås den på med bryteren «Adminmodus» på forsiden; ellers ser
+administratoren appen som alle andre.
 
 ## Sluttbrukerens visning
 

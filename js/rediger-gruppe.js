@@ -4,8 +4,8 @@
 import { actsAsAdmin, canEdit } from './admin.js';
 import { getUser } from './auth.js';
 import {
-  addGroupEditor, createList, deleteGroup, deleteList, getGroup, getGroupEditors,
-  getGroupOwner, imageUrl, insertStep, listImagePaths, removeFiles, removeGroupEditor,
+  createList, deleteGroup, deleteList, getGroup, getGroupEditors,
+  getGroupOwner, imageUrl, insertStep, invite, listImagePaths, removeFiles, removeGroupEditor,
   saveOrder, updateGroup, uploadImage,
 } from './data.js';
 import { el } from './dom.js';
@@ -194,7 +194,8 @@ async function renderEditors() {
   }
   $('editors').replaceChildren(...(editors.length
     ? editors.map((editor) => el('div', { class: 'editor-row' },
-        el('span', {}, editor.email),
+        el('span', {}, editor.email,
+          editor.invited ? el('small', { class: 'muted' }, ' · invitert, ikke logget inn ennå') : null),
         el('button', { type: 'button', onclick: () => removeEditor(editor) }, 'Fjern')))
     : [el('p', { class: 'muted' }, 'Ingen andre enn deg kan redigere ennå.')]));
 }
@@ -206,29 +207,27 @@ async function removeEditor(editor) {
   renderEditors();
 }
 
-function setupEditors(user) {
+// Eieren skriver bare e-postadressen. Serverfunksjonen finner ut om personen
+// har konto (legges til med en gang) eller må inviteres (får e-post, og blir
+// redaktør uten mulighet til å lage egne grupper).
+function setupEditors() {
   $('new-editor').addEventListener('submit', async (event) => {
     event.preventDefault();
     const email = $('new-editor-email').value.trim();
     if (!email) return;
-    if (email.toLowerCase() === user.email.toLowerCase()) {
-      editorMessage('Du eier gruppen, så du kan allerede redigere.', true);
-      return;
-    }
 
     const button = $('new-editor').querySelector('button');
     button.disabled = true;
     editorMessage(null);
     try {
-      await addGroupEditor(group.id, email);
+      const { invited } = await invite(email, 'editor', group.id);
       $('new-editor-email').value = '';
-      // Det sendes ingen e-post; tilgangen gjelder med en gang.
-      editorMessage(`${email} kan nå redigere. Gi beskjed – gruppen dukker opp på forsiden når personen logger inn.`);
+      editorMessage(invited
+        ? `Invitasjon sendt til ${email}. Personen kan redigere gruppen når invitasjonen er tatt imot.`
+        : `${email} kan nå redigere. Det sendes ingen e-post, så gi gjerne beskjed – gruppen står på forsiden neste gang personen logger inn.`);
       renderEditors();
     } catch (error) {
-      editorMessage(error.code === 'P0002'
-        ? `Fant ingen bruker med ${email}. Personen må først inviteres til Husk Klommestein.`
-        : 'Kunne ikke gi tilgang. Sjekk nettet og prøv igjen.', true);
+      editorMessage(error.message, true);
     } finally {
       button.disabled = false;
     }
@@ -306,7 +305,7 @@ async function main() {
   renderLists();
   setupNewList();
   setupDelete();
-  setupEditors(user);
+  setupEditors();
   setupLeave(user);
 
   // I adminmodus har du eierens rettigheter: styre redaktører og slette.

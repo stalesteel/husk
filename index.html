@@ -19,6 +19,7 @@
   .admin-toggle input { width: 20px; height: 20px; accent-color: var(--error); }
   .admin-banner { margin: 24px 0 0; padding: 10px 12px; border-radius: 10px;
     background: var(--error); color: var(--surface); font-weight: 600; }
+  .admin-banner a { color: inherit; }
   .admin-list { text-align: left; margin-top: 12px; }
   .admin-row { display: flex; gap: 12px; align-items: center; justify-content: space-between;
     padding: 12px 0; border-bottom: 1px solid var(--border); }
@@ -45,7 +46,7 @@
 
   <script type="module">
     import { getUser, hasLinkError } from '/js/auth.js';
-    import { adminListGroups, createGroup, getMyGroups, isAdmin } from '/js/data.js';
+    import { adminListGroups, canCreateGroups, createGroup, getMyGroups, isAdmin } from '/js/data.js';
     import { adminModeOn, setAdminMode } from '/js/admin.js';
     import { el } from '/js/dom.js';
 
@@ -60,14 +61,15 @@
       status.querySelector('strong').textContent = user.email;
 
       const groupsEl = document.getElementById('groups');
-      const admin = await isAdmin();
+      const [admin, creator] = await Promise.all([isAdmin(), canCreateGroups()]);
 
       async function renderGroups() {
         if (admin && adminModeOn()) {
           // Alle grupper, med eier og antall lister, for å kunne rydde.
           const all = await adminListGroups().catch(() => []);
           groupsEl.replaceChildren(
-            el('p', { class: 'admin-banner' }, `Adminmodus – alle ${all.length} grupper`),
+            el('p', { class: 'admin-banner' }, `Adminmodus – alle ${all.length} grupper · `,
+              el('a', { href: '/admin/' }, 'Brukere og roller')),
             el('div', { class: 'admin-list' }, all.map((group) => el('div', { class: 'admin-row' },
               el('div', {},
                 el('a', { class: 'name', href: `/gruppe/?id=${group.id}` }, group.name),
@@ -77,6 +79,11 @@
           const groups = await getMyGroups(user.id).catch(() => []);
           groupsEl.replaceChildren(...groups.map((group) =>
             el('a', { class: 'button', href: `/gruppe/?id=${group.id}` }, group.name)));
+          if (!groups.length) {
+            groupsEl.append(el('p', { class: 'muted' }, creator
+              ? 'Du har ingen grupper ennå.'
+              : 'Du har ingen grupper ennå. Når noen gir deg tilgang til en gruppe, står den her.'));
+          }
         }
       }
       await renderGroups();
@@ -92,10 +99,11 @@
       }
 
       // Ny gruppe: blir din, og åpnes i redigeringen så du kan legge inn
-      // bilde, beskrivelse og lister.
+      // bilde, beskrivelse og lister. Bare for fulle brukere; redaktører
+      // redigerer bare grupper de er lagt til i.
       const show = document.getElementById('show-new-group');
       const form = document.getElementById('new-group');
-      show.hidden = false;
+      show.hidden = !creator;
       show.addEventListener('click', () => {
         show.hidden = true;
         form.hidden = false;
