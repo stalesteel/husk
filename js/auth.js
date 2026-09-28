@@ -54,6 +54,18 @@ export async function sendLoginLink(email, nextPath) {
   return 'Kunne ikke sende innloggingslenke. Prøv igjen om litt.';
 }
 
+// Koden fra innloggingse-posten, som alternativ til lenken. Den logger inn i
+// nettleseren der den skrives inn, også når e-postappen ville åpnet lenken i
+// sin egen innebygde nettleser. Returnerer en feilmelding, eller null.
+export async function verifyCode(email, code) {
+  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
+  if (!error) return null;
+  if (error.status === 429) {
+    return 'For mange forsøk. Vent litt og prøv igjen.';
+  }
+  return 'Koden stemmer ikke eller er utløpt. Sjekk koden, eller be om en ny e-post.';
+}
+
 export async function signOut() {
   await supabase.auth.signOut();
 }

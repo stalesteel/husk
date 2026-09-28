@@ -22,8 +22,14 @@
     </form>
 
     <div id="sent" hidden>
-      <p>Vi har sendt en lenke til <strong id="sent-email"></strong>.</p>
-      <p class="muted">Åpne e-posten og trykk på lenken. Finner du den ikke, sjekk søppelposten.</p>
+      <p>Vi har sendt en e-post til <strong id="sent-email"></strong>.</p>
+      <p class="muted">Trykk på lenken i e-posten, eller skriv inn koden fra den her. Finner du den ikke, sjekk søppelposten.</p>
+      <form id="code-form">
+        <label for="code">Kode fra e-posten</label>
+        <input id="code" class="code" type="text" inputmode="numeric" autocomplete="one-time-code" required>
+        <button id="verify" class="button" type="submit">Logg inn</button>
+        <p id="code-error" class="error" role="alert" hidden></p>
+      </form>
       <button id="again" class="button secondary" type="button">Bruk en annen e-postadresse</button>
     </div>
 
@@ -35,7 +41,7 @@
   </main>
 
   <script type="module">
-    import { getUser, linkError, safeNextPath, sendLoginLink, signOut } from '/js/auth.js';
+    import { getUser, linkError, safeNextPath, sendLoginLink, signOut, verifyCode } from '/js/auth.js';
 
     const $ = (id) => document.getElementById(id);
     const next = safeNextPath(new URLSearchParams(location.search).get('neste'));
@@ -72,7 +78,29 @@
         return;
       }
       $('sent-email').textContent = email;
+      $('code').value = '';
+      showCodeError(null);
       show('sent');
+      $('code').focus();
+    });
+
+    function showCodeError(message) {
+      $('code-error').textContent = message ?? '';
+      $('code-error').hidden = !message;
+    }
+
+    $('code-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const code = $('code').value.replace(/\s/g, '');
+      showCodeError(null);
+      $('verify').disabled = true;
+      const error = await verifyCode($('sent-email').textContent, code);
+      $('verify').disabled = false;
+      if (error) {
+        showCodeError(error);
+        return;
+      }
+      location.assign(next);
     });
 
     $('again').addEventListener('click', () => {

@@ -55,7 +55,8 @@ h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; }
 label { display: block; font-weight: 600; margin-bottom: 6px; }
 
 /* Minst 16px, ellers zoomer iPhone Safari inn når feltet får fokus. */
-input[type="email"] {
+input[type="email"],
+input.code {
   width: 100%;
   font: inherit;
   font-size: 1.0625rem;
@@ -64,6 +65,13 @@ input[type="email"] {
   border-radius: 10px;
   background: var(--surface);
   color: var(--text);
+}
+
+input.code {
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .button {
