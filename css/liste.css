@@ -8,6 +8,7 @@ body.viewer {
   --v-empty: #1c1c1c;
   --v-done: #3ecf8e;
   --v-done-text: #04210f;
+  --v-remaining: #ff6b6b;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -229,4 +230,10 @@ body.viewer {
 .summary p { margin: 0 0 20px; color: var(--v-muted); }
 
 .summary .check { margin-top: 12px; text-align: left; }
+
+/* Punktene som gjenstår, i rødt. */
+.summary .check.remaining {
+  border-color: var(--v-remaining);
+  color: var(--v-remaining);
+}
 .summary .check.secondary { text-align: center; margin-top: 28px; }

@@ -137,7 +137,7 @@ function updateSummary() {
       el('h2', {}, 'Dette gjenstår'),
       el('p', {}, `${remaining.length} av ${total} punkter er ikke krysset av.`),
       ...remaining.map(({ step, index }) => el('button', {
-        class: 'check',
+        class: 'check remaining',
         type: 'button',
         onclick: () => scrollToSection(index),
       }, `${index + 1}. ${stepTitle(step)}`)),
@@ -166,15 +166,20 @@ function trackCurrentSection() {
 }
 
 // Skjermen holdes våken mens listen er åpen, der nettleseren støtter det.
-async function keepAwake() {
+// Noen nettlesere (bl.a. Safari) godtar forespørselen bare rett etter en
+// berøring, så den prøves på nytt ved hver berøring til den lykkes. Låsen
+// slippes når siden skjules, og hentes igjen når den vises.
+function keepAwake() {
   if (!('wakeLock' in navigator)) return;
+  let lock = null;
   const request = async () => {
-    try { await navigator.wakeLock.request('screen'); } catch { /* ikke tillatt nå */ }
+    if (document.visibilityState !== 'visible' || (lock && !lock.released)) return;
+    try { lock = await navigator.wakeLock.request('screen'); } catch { /* ikke tillatt nå */ }
   };
-  await request();
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') request();
-  });
+  request();
+  document.addEventListener('visibilitychange', request);
+  document.addEventListener('pointerup', request, { passive: true });
+  document.addEventListener('click', request);
 }
 
 // ---------------------------------------------------------------------------
