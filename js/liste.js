@@ -197,6 +197,10 @@ if (list) {
   $('list-title').textContent = list.title;
   $('back').href = `/gruppe/?id=${list.group.id}`;
   $('back').setAttribute('aria-label', `Tilbake til ${list.group.name}`);
+  if (list.can_edit) {
+    $('edit').href = `/rediger/?id=${list.id}`;
+    $('edit').hidden = false;
+  }
 
   stepsEl.append(...list.steps.map(renderStep));
   summaryEl = el('section', { class: 'summary', 'aria-label': 'Oppsummering' });

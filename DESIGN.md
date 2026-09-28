@@ -83,6 +83,12 @@ nederste tredjedel av hvert bilde i praksis gikk tapt. Prisen er at bildet får 
 høyde og beskjæres strammere. Gevinsten er at ingenting i bildet noen gang skjules —
 viktig når bildet er hele poenget med steget.
 
+**Bildet er alltid kvadratisk.** Et bilde som fyller den plassen teksten ikke bruker, ville
+blitt beskåret ulikt på ulike telefoner og ved ulik tekstlengde — og da ser ikke eieren det
+gjestene ser. Kvadrat er valgt fordi det gir plass til tittel og tre-fire linjer tekst
+også på de minste telefonene (iPhone SE). Mobilbilder beskjæres litt oppe og nede, men det
+ser eieren i det bildet tas. Faden ligger i nederste kant av kvadratet.
+
 ### Flere bilder per steg
 
 Et steg kan ha flere bilder, med **horisontal sveip mellom dem**. Eksempel: «Opprydding»

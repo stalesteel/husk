@@ -1,0 +1,154 @@
+/* Redigering: samme oppsett som sjekklisten (liste.css), med verktøy lagt
+   oppå. Feltene er stylet som teksten de erstatter, så eieren ser resultatet
+   mens hen skriver. */
+
+.save-status {
+  flex: none;
+  color: var(--v-muted);
+  font-size: 0.8125rem;
+}
+.save-status.error { color: var(--v-remaining); font-weight: 600; }
+
+/* Verktøy øverst i bildet, der faden ikke ligger. */
+.media-tools {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+
+.tool {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 22px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.tool:disabled { opacity: 0.4; cursor: default; }
+
+.take-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: max-content;
+  height: max-content;
+  margin: auto;
+  padding: 18px 28px;
+  border: 2px dashed var(--v-muted);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--v-text);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.slide { position: relative; }
+.slide.uploading img { opacity: 0.55; }
+.slide.uploading::after {
+  content: 'Laster opp …';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+}
+
+/* Feltene ser ut som teksten i sjekklisten, med en svak ramme som viser at
+   de kan redigeres. Minst 16px skrift, ellers zoomer iPhone inn. */
+.editing .field {
+  display: block;
+  width: calc(100% + 12px);
+  margin: 0 -6px;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  box-shadow: inset 0 0 0 1px #333;
+  outline: none;
+}
+.editing .field:focus { box-shadow: inset 0 0 0 2px var(--v-text); }
+.editing .field::placeholder { color: #6f6f6b; }
+
+.editing input.step-title {
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.editing textarea.description {
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+.editing input.image-label {
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.editing input.image-label::placeholder { text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+.step-tools {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.step-tools button {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--v-muted);
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+.step-tools button:disabled { opacity: 0.35; cursor: default; }
+.step-tools .danger { color: var(--v-remaining); border-color: #5a2a2a; }
+
+/* Siste side: innstillinger for listen. */
+.settings label.setting { display: block; margin: 0 0 6px; font-weight: 600; }
+
+.settings input[type="text"] {
+  width: 100%;
+  font: inherit;
+  font-size: 1.0625rem;
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background: #111;
+  color: var(--v-text);
+  margin-bottom: 24px;
+}
+
+.settings label.setting.toggle {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-weight: 400;
+}
+.settings .toggle input { width: 24px; height: 24px; margin: 2px 0 0; flex: none; accent-color: var(--v-done); }
+.settings .toggle small { display: block; color: var(--v-muted); font-size: 0.9375rem; }
