@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Logg inn – Husk</title>
+<link rel="stylesheet" href="/css/base.css">
+</head>
+<body>
+  <main class="page">
+    <h1>Logg inn</h1>
+
+    <p id="loading" class="muted">Et øyeblikk …</p>
+
+    <form id="form" hidden>
+      <p class="muted">Skriv inn e-postadressen din, så sender vi deg en lenke. Det er ikke noe passord.</p>
+      <label for="email">E-post</label>
+      <input id="email" type="email" autocomplete="email" inputmode="email" required>
+      <button id="send" class="button" type="submit">Send innloggingslenke</button>
+      <p id="form-error" class="error" role="alert" hidden></p>
+    </form>
+
+    <div id="sent" hidden>
+      <p>Vi har sendt en lenke til <strong id="sent-email"></strong>.</p>
+      <p class="muted">Åpne e-posten og trykk på lenken. Finner du den ikke, sjekk søppelposten.</p>
+      <button id="again" class="button secondary" type="button">Bruk en annen e-postadresse</button>
+    </div>
+
+    <div id="signed-in" hidden>
+      <p>Du er logget inn som <strong id="user-email"></strong>.</p>
+      <a id="continue" class="button" href="/">Fortsett</a>
+      <button id="sign-out" class="button secondary" type="button">Logg ut</button>
+    </div>
+  </main>
+
+  <script type="module">
+    import { getUser, linkError, safeNextPath, sendLoginLink, signOut } from '/js/auth.js';
+
+    const $ = (id) => document.getElementById(id);
+    const next = safeNextPath(new URLSearchParams(location.search).get('neste'));
+
+    function show(id) {
+      for (const el of ['loading', 'form', 'sent', 'signed-in']) $(el).hidden = el !== id;
+    }
+
+    function showError(message) {
+      $('form-error').textContent = message ?? '';
+      $('form-error').hidden = !message;
+    }
+
+    const user = await getUser();
+    if (user) {
+      $('user-email').textContent = user.email;
+      $('continue').href = next;
+      show('signed-in');
+    } else {
+      show('form');
+      showError(linkError());
+      $('email').focus();
+    }
+
+    $('form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = $('email').value.trim();
+      showError(null);
+      $('send').disabled = true;
+      const error = await sendLoginLink(email, next);
+      $('send').disabled = false;
+      if (error) {
+        showError(error);
+        return;
+      }
+      $('sent-email').textContent = email;
+      show('sent');
+    });
+
+    $('again').addEventListener('click', () => {
+      show('form');
+      $('email').select();
+    });
+
+    $('sign-out').addEventListener('click', async () => {
+      await signOut();
+      show('form');
+    });
+  </script>
+</body>
+</html>

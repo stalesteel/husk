@@ -1,0 +1,94 @@
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --text: #1c1c1c;
+  --muted: #6b6b6b;
+  --border: #dcdcd8;
+  --accent: #1f6f4a;
+  --accent-text: #ffffff;
+  --error: #b3261e;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --text: #f0f0ee;
+    --muted: #a3a3a0;
+    --border: #3a3a38;
+    --accent: #4fb584;
+    --accent-text: #0b1f15;
+    --error: #f2b8b5;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+a { color: var(--accent); }
+
+h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+
+.muted { color: var(--muted); }
+.error { color: var(--error); }
+
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+
+/* Minst 16px, ellers zoomer iPhone Safari inn når feltet får fokus. */
+input[type="email"] {
+  width: 100%;
+  font: inherit;
+  font-size: 1.0625rem;
+  padding: 14px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.button:disabled { opacity: 0.6; cursor: default; }
+
+[hidden] { display: none !important; }

@@ -60,6 +60,11 @@ har skrudd av vannet. Men ingen skal kunne endre listen uten å være logget inn
 For innlogging anbefales e-post med engangslenke — ingen passord å glemme eller
 administrere for en familie- og menighetskrets.
 
+**Kontoer kun ved invitasjon.** Åpen registrering er slått av i Supabase. Nye brukere
+inviteres fra Supabase-dashbordet, og logger deretter inn med engangslenke. Appen skal
+aldri opprette brukere selv når en ukjent e-postadresse skrives inn. Å få konto er noe
+annet enn å få redigere en bestemt gruppe — det gir eieren inne i appen.
+
 ## Sluttbrukerens visning
 
 Ett sjekkpunkt fyller hele skjermen. **Vertikal sveip bytter steg**, med scroll-snap så
