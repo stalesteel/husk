@@ -46,7 +46,7 @@ export async function sendLoginLink(email, nextPath) {
   });
   if (!error) return null;
   if (error.code === 'otp_disabled' || /signups not allowed/i.test(error.message)) {
-    return 'Denne e-postadressen har ikke tilgang til Husk. Kontoer opprettes bare ved invitasjon.';
+    return 'Denne e-postadressen har ikke tilgang til Husk Klommestein. Kontoer opprettes bare ved invitasjon.';
   }
   if (error.status === 429) {
     return 'Det ble nettopp sendt en lenke. Vent litt og prøv igjen.';

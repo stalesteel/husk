@@ -13,6 +13,9 @@ nettsteder kommer i tillegg, men QR er det som former designet.
 
 Brukerne er familie, venner og menighet. Ikke et produkt for salg.
 
+Navnet utad er **Husk Klommestein** — i sidetitler, overskrifter og e-post. «Husk» alene er
+for generelt og lett å misforstå. Internt (repo, domene, kode) heter prosjektet fortsatt husk.
+
 ## Teknisk grunnlag
 
 | | |
