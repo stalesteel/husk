@@ -130,6 +130,12 @@
   }
 
   .guest p { margin: 0 0 16px; font-size: 1.0625rem; }
+  .film-card { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding: 10px 14px 10px 10px;
+    border-radius: 18px; background: var(--accent-soft); color: var(--accent-soft-text); text-decoration: none; }
+  .film-card img { flex: none; width: 54px; height: 96px; object-fit: cover; border-radius: 10px; }
+  .film-card span { flex: 1; }
+  .film-card .play { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-text); font-size: 1rem; }
   .guest .button + .button { margin-top: 12px; }
 
   .home-footer { margin-top: 36px; text-align: center; color: var(--muted); }
@@ -162,6 +168,11 @@
         <p>Har du fått en lenke eller skannet en QR-kode, trenger du ingen konto. Er du invitert til å lage eller redigere sjekklister, logger du inn her.</p>
         <a class="button" href="/logg-inn/">Logg inn</a>
         <a class="button secondary" href="/om/">Les mer om Husk Klommestein</a>
+        <a class="film-card" href="/film/">
+          <img src="/film/plakat.jpg" alt="">
+          <span><strong>Se filmen</strong><br>Hva Husk Klommestein er, på 90 sekunder</span>
+          <span class="play" aria-hidden="true">▶</span>
+        </a>
       </section>
 
       <h2 id="groups-title" class="gp-section-title" hidden>Mine grupper</h2>

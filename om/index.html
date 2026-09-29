@@ -30,6 +30,16 @@
   }
   .examples strong { display: block; }
   .examples span { color: var(--muted); }
+  .film {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 9 / 16;
+    margin: 20px auto 8px;
+    border-radius: 18px;
+    background: #000;
+  }
+  .film-caption { text-align: center; color: var(--muted); font-size: 0.9375rem; }
   .contact {
     margin-top: 40px;
     padding: 16px;
@@ -45,6 +55,9 @@
 
     <h1>Om Husk Klommestein</h1>
     <p class="lead">Sjekklister med bilder, for de stedene der det er lett å glemme noe.</p>
+
+    <video class="film" src="/film/husk-klommestein.mp4" poster="/film/plakat.jpg" controls playsinline preload="metadata"></video>
+    <p class="film-caption">Se filmen – 1½ minutt, med norske undertekster.</p>
 
     <p>Du står i hytta og skal reise hjem. Var det vannet eller strømmen som skulle av først? Hvor skulle putene ligge? Husk Klommestein gir deg svaret der du står: ett punkt om gangen, med et bilde som viser nøyaktig hva som skal gjøres.</p>
 
