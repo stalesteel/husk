@@ -40,6 +40,74 @@
     background: #000;
   }
   .film-caption { text-align: center; color: var(--muted); font-size: 0.9375rem; }
+  /* Gave til Frank Future */
+  .give {
+    margin-top: 16px;
+    padding: 20px 16px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent-soft-text);
+    scroll-margin-top: 16px;
+  }
+  .give h2 { margin-top: 0; color: inherit; }
+  .give p { color: inherit; }
+  .give-logo {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 4px auto 16px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: #fff;
+  }
+  .give-logo img { display: block; width: 100%; height: auto; }
+  .pay {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+  }
+  .pay-label { display: block; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .pay-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .pay-number { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+  .pay small { display: block; color: var(--muted); }
+  .copy {
+    flex: none;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .vipps-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    margin-top: 12px;
+    border-radius: 12px;
+    background: #ff5b24;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.0625rem;
+    text-decoration: none;
+  }
+  .vipps-qr { display: none; width: 180px; margin: 12px auto 0; }
+  .vipps-qr img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .vipps-qr small { text-align: center; margin-top: 6px; }
+  /* På PC, der Vipps-appen ikke finnes: vis QR-koden i stedet for knappen. */
+  @media (hover: hover) and (pointer: fine) {
+    .vipps-button { display: none; }
+    .vipps-qr { display: block; }
+  }
+  .give .note { margin: 14px 0 0; font-weight: 600; }
+  .give .fine { margin: 10px 0 0; font-size: 0.9375rem; opacity: 0.85; }
+
   .contact {
     margin-top: 40px;
     padding: 16px;
@@ -115,6 +183,54 @@
       <p>Husk Klommestein er laget av Ståle Klommestein, for familie, venner og menighet. Det er ikke et kommersielt produkt.</p>
       <p style="margin: 0;">Vil du lage egne grupper og bli full bruker, eller har du spørsmål? Send en e-post til <a href="mailto:stale@klommestein.no">stale@klommestein.no</a>.</p>
     </div>
+
+    <section id="gi" class="give">
+      <h2>Vil du gi noe tilbake?</h2>
+      <p>Husk Klommestein er gratis og uten reklame, og slik skal det forbli. Har du glede av den, er det fint om du i stedet gir en gave til Frank Future.</p>
+      <a class="give-logo" href="https://www.frankfuture.no/" target="_blank" rel="noopener noreferrer">
+        <img src="/bilder/frankfuture-logo.webp" alt="Frank Future" width="700" height="195">
+      </a>
+      <p>Frank Future støtter hjertedrevne prosjekter der de kjenner menneskene de hjelper – blant annet i Nepal, Kenya, Albania og Sør-Afrika, i tillegg til Mercy Ships, mikrofinans og katastrofehjelp. Frank Eiendom dekker det administrative, og det meste gjøres frivillig, så 100 % av gaven kommer frem til prosjektet.</p>
+
+      <div class="pay">
+        <span class="pay-label">Vipps</span>
+        <div class="pay-row">
+          <span><span class="pay-number">722647</span><small>Frank Future</small></span>
+          <button class="copy" type="button" data-copy="722647">Kopier</button>
+        </div>
+        <a class="vipps-button" href="https://qr.vipps.no/28/2/05/031/Ggh5J_Wfp">Gi med Vipps</a>
+        <div class="vipps-qr">
+          <img src="/bilder/frankfuture-vipps-qr.png" alt="QR-kode for Vipps til Frank Future" width="800" height="800">
+          <small>Skann med kameraet på telefonen</small>
+        </div>
+      </div>
+
+      <div class="pay">
+        <span class="pay-label">Bankoverføring</span>
+        <div class="pay-row">
+          <span><span class="pay-number">1506.03.91448</span><small>Kontoeier: FRANK FUTURE (Frank Eiendom AS)</small></span>
+          <button class="copy" type="button" data-copy="15060391448">Kopier</button>
+        </div>
+      </div>
+
+      <p class="note">Skriv hvilket prosjekt du vil støtte i meldingen, for eksempel «Nepal» eller «Mercy Ships».</p>
+      <p class="fine">Gaven går direkte til Frank Future. Husk Klommestein får ingen del av den, og ser ikke hvem som gir.
+        <a href="https://www.frankfuture.no/prosjekter/" target="_blank" rel="noopener noreferrer">Les om prosjektene på frankfuture.no ↗</a></p>
+    </section>
   </main>
+  <script>
+    // Kopier-knappene: nummeret legges på utklippstavlen, med en kort bekreftelse.
+    for (const button of document.querySelectorAll('[data-copy]')) {
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy);
+          button.textContent = 'Kopiert ✓';
+        } catch {
+          button.textContent = 'Kunne ikke kopiere';
+        }
+        setTimeout(() => { button.textContent = 'Kopier'; }, 2000);
+      });
+    }
+  </script>
 </body>
 </html>
