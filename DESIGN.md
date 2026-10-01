@@ -59,8 +59,10 @@ noen andre få redigere, gis det på permen én gang i stedet for på hver liste
 
 Eiere skal kunne hente ut QR-kode både for permen og for hver enkelt liste.
 
-Utseendet hinter om ordet uten å overdrive: på forsiden ligger permene som rygger i en
-stabel, med etikett og grephull, og arket i permen har to hull i venstre marg.
+Utseendet hinter om ordet uten å overdrive, med spiralperm som tema: på forsiden er hver
+perm en liten, bred spiralperm med spiralen langs venstre kant, og selve permen ser ut som
+et oppslag i en spiralperm, med spiralen helt ned forbi sjekklistene. (Et første forsøk
+med ringperm, med hull og grephull, fungerte dårlig på skjerm.)
 
 Adressene er `/perm/?id=…` og `/rediger/perm/?id=…`. I koden og databasen heter en perm
 fortsatt `group` (tabellen `groups`, `get_group` osv.); det vises aldri for brukerne.

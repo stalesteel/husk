@@ -53,22 +53,33 @@
   .home-main { padding: 26px 20px calc(env(safe-area-inset-bottom) + 40px); }
   .home-main .gp-section-title { margin-top: 0; }
 
-  /* Permene: som ryggen på en ringperm, liggende i en stabel. Bilde (eller
-     forbokstaven), etikett med navn, antall lister og rollen, og grephullet
-     ytterst. Eier: grønn perm. Redaktør: lysegrønn perm. */
+  /* Permene: hver perm er en liten, bred spiralperm, med spiralen langs
+     venstre kant, bilde (eller forbokstaven) og en etikett med navn, antall
+     lister og rollen. Eier: grønn perm. Redaktør: lysegrønn perm. */
   .perm-card {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
     min-height: 76px;
-    margin-top: 8px;
-    padding: 9px 12px 9px 9px;
-    border-radius: 10px;
+    margin-top: 10px;
+    padding: 9px 12px 9px 26px;
+    border-radius: 6px 14px 14px 6px;
     background-color: var(--accent);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 45%, rgba(0, 0, 0, 0.12));
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 60%);
     color: var(--accent-text);
     text-decoration: none;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 6px 16px rgba(31, 111, 74, 0.18);
+  }
+  .perm-card::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: -6px;
+    width: 24px;
+    background: var(--spiral-card) 0 0 / 24px 13px;
+    background-repeat: no-repeat round; /* bare hele vindinger */
   }
   .perm-card.editor {
     background-color: #9fd3b6;
@@ -88,10 +99,10 @@
     font-size: 1.5rem;
     font-weight: 700;
   }
-  .perm-card.editor .thumb { background: rgba(255, 255, 255, 0.45); color: var(--accent-soft-text); }
+  .perm-card.editor .thumb { background: rgba(255, 255, 255, 0.45); color: #134a31; }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* Etiketten på ryggen */
+  /* Etiketten på permen */
   .card-label {
     flex: 1;
     min-width: 0;
@@ -104,16 +115,7 @@
   .card-name { display: block; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
   .card-meta { display: block; font-size: 0.875rem; color: var(--muted); }
   .role { font-weight: 700; color: var(--accent); }
-
-  /* Grephullet, med metallring */
-  .finger-hole {
-    flex: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.42);
-    box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.45), 0 0 0 3px #d4ddd8, 0 1px 0 4px rgba(0, 0, 0, 0.12);
-  }
+  .card-chevron { flex: none; font-size: 1.625rem; line-height: 1; opacity: 0.8; }
 
   .new-card {
     display: block;
@@ -226,7 +228,7 @@
 
     const lists = (n) => `${n} ${n === 1 ? 'liste' : 'lister'}`;
 
-    // En perm: ryggen med bilde (eller forbokstaven), etikett og grephull.
+    // En perm: en liten spiralperm med bilde (eller forbokstaven) og etikett.
     function permCard(perm, owner) {
       const thumb = el('span', { class: 'thumb', 'aria-hidden': 'true' });
       const letter = () => thumb.replaceChildren(perm.name.trim().charAt(0).toUpperCase());
@@ -243,7 +245,7 @@
           el('span', { class: 'card-name' }, perm.name),
           el('span', { class: 'card-meta' }, `${lists(perm.lists?.[0]?.count ?? 0)} · `,
             el('span', { class: 'role' }, owner ? 'Eier' : 'Redaktør'))),
-        el('span', { class: 'finger-hole', 'aria-hidden': 'true' }));
+        el('span', { class: 'card-chevron', 'aria-hidden': 'true' }, '›'));
     }
 
     const user = await getUser();
