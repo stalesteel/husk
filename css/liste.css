@@ -286,9 +286,17 @@ body.viewer {
     margin: 0 auto;
   }
 
+  /* Størrelsen på kvadratet regnes ut fra plassen stegene har (cqw/cqh), ikke
+     fra bildet. Med «auto» ble kolonnen regnet ut før høyden var kjent, og i
+     et bredt, lavt vindu ble bildet bredere enn kolonnen og la seg over
+     teksten. */
+  .steps { container-type: size; }
+
   .step {
+    /* Fyller høyden (minus padding), men gir alltid minst 300 px til teksten. */
+    --square: min(100cqh - 32px, min(100cqw, 1100px) - 48px - 40px - 300px);
     display: grid;
-    grid-template-columns: auto minmax(300px, 1fr);
+    grid-template-columns: var(--square) minmax(300px, 1fr);
     grid-template-rows: 1fr auto;
     column-gap: 40px;
     max-width: 1100px;
@@ -296,12 +304,11 @@ body.viewer {
     padding: 8px 24px 24px;
   }
 
-  /* Kvadratet fyller høyden, men gir alltid minst 300 px til teksten. */
   .step .media {
     grid-row: 1 / 3;
     align-self: center;
-    width: auto;
-    height: min(100%, calc(100vw - 48px - 40px - 300px));
+    width: var(--square);
+    height: var(--square);
     max-height: none;
     border-radius: 14px;
   }
