@@ -8,7 +8,7 @@ import {
   deleteImage, deleteStep, getList, imageUrl, insertImage, insertStep,
   removeFiles, saveOrder, updateImage, updateList, updateStep, uploadImage,
 } from './data.js';
-import { el } from './dom.js';
+import { el, imageArrows } from './dom.js';
 import { prepareImage } from './images.js';
 import { flushAll, later, leaveVia, save, showStatusIn } from './saving.js';
 
@@ -173,6 +173,7 @@ function renderStep(step, index) {
     el('div', { class: 'media' },
       slides,
       dots.length ? el('div', { class: 'dots' }, dots) : null,
+      ...imageArrows(slides, images.length),
       label,
       tools),
     el('div', { class: 'text' }, title, description),

@@ -297,16 +297,17 @@ body.viewer {
     --square: min(100cqh - 32px, min(100cqw, 1100px) - 48px - 40px - 300px);
     display: grid;
     grid-template-columns: var(--square) minmax(300px, 1fr);
-    grid-template-rows: 1fr auto;
+    grid-template-rows: minmax(0, 1fr) auto;
     column-gap: 40px;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 8px 24px 24px;
+    /* Steget blir like høyt som bildet og står samlet midt i høyden: teksten
+       starter i overkant av bildet, og knappen står i nederkant. */
+    padding: calc((100cqh - var(--square)) / 2) 24px;
   }
 
   .step .media {
     grid-row: 1 / 3;
-    align-self: center;
     width: var(--square);
     height: var(--square);
     max-height: none;
@@ -331,4 +332,35 @@ body.viewer {
     max-width: 560px;
     margin: 0 auto;
   }
+}
+
+/* Piler for å bla mellom bildene med mus. På mobil sveiper man, og der vises
+   de ikke. */
+.nav { display: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .nav {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-top: -24px;
+    padding: 0 0 4px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #ffffff;
+    font: inherit;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .nav:hover { background: rgba(0, 0, 0, 0.8); }
+  .nav.prev { left: 12px; }
+  .nav.next { right: 12px; }
 }

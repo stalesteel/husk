@@ -1,6 +1,6 @@
 import { getList, imageUrl } from './data.js';
 import { canEdit } from './admin.js';
-import { el } from './dom.js';
+import { el, imageArrows } from './dom.js';
 
 const $ = (id) => document.getElementById(id);
 const stepsEl = $('steps');
@@ -49,6 +49,7 @@ function renderStep(step, index) {
       }))
     : [];
 
+  state.slides = slides;
   state.label = el('p', { class: 'image-label' });
   state.button = el('button', { class: 'check', type: 'button', onclick: () => toggle(index) });
 
@@ -62,6 +63,7 @@ function renderStep(step, index) {
     el('div', { class: 'media' },
       slides,
       state.dots.length ? el('div', { class: 'dots' }, state.dots) : null,
+      ...imageArrows(slides, step.images.length),
       state.label),
     el('div', { class: 'text' },
       el('h2', { class: 'step-title' }, stepTitle(step)),
@@ -164,6 +166,15 @@ function trackCurrentSection() {
   };
   stepsEl.addEventListener('scroll', update, { passive: true });
   update();
+
+  // Piltastene til venstre og høyre blar mellom bildene i steget som vises.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const slides = steps[shown]?.slides;
+    if (!slides || steps[shown].images.length < 2) return;
+    event.preventDefault();
+    slides.scrollBy({ left: (event.key === 'ArrowLeft' ? -1 : 1) * slides.clientWidth, behavior: 'smooth' });
+  });
 }
 
 // Skjermen holdes våken mens listen er åpen, der nettleseren støtter det.
