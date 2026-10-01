@@ -8,7 +8,8 @@ import {
   deleteImage, deleteStep, getList, imageUrl, insertImage, insertStep,
   removeFiles, saveOrder, updateImage, updateList, updateStep, uploadImage,
 } from './data.js';
-import { el, imageArrows } from './dom.js';
+import { imageArrows } from './bildepiler.js';
+import { el } from './dom.js';
 import { prepareImage } from './images.js';
 import { flushAll, later, leaveVia, save, showStatusIn } from './saving.js';
 

@@ -1,6 +1,7 @@
 import { getList, imageUrl } from './data.js';
 import { canEdit } from './admin.js';
-import { el, imageArrows } from './dom.js';
+import { imageArrows } from './bildepiler.js';
+import { el } from './dom.js';
 
 const $ = (id) => document.getElementById(id);
 const stepsEl = $('steps');
