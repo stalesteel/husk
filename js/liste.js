@@ -123,7 +123,7 @@ function updateSummary() {
     .map((step, index) => ({ step, index }))
     .filter(({ index }) => !steps[index].checked);
 
-  const back = el('a', { class: 'check secondary', href: `/gruppe/?id=${list.group.id}` },
+  const back = el('a', { class: 'check secondary', href: `/perm/?id=${list.group.id}` },
     `Tilbake til ${list.group.name}`);
 
   if (total === 0) {
@@ -196,7 +196,7 @@ if (list === null) showMessage('Fant ikke denne listen. Sjekk at lenken er rikti
 if (list) {
   document.title = `${list.title} – Husk Klommestein`;
   $('list-title').textContent = list.title;
-  $('back').href = `/gruppe/?id=${list.group.id}`;
+  $('back').href = `/perm/?id=${list.group.id}`;
   $('back').setAttribute('aria-label', `Tilbake til ${list.group.name}`);
   if (canEdit(list)) {
     $('edit').href = `/rediger/?id=${list.id}`;

@@ -1,4 +1,4 @@
-// QR-kode for en gruppeside (?gruppe=id) eller en liste (?liste=id), klar
+// QR-kode for en perm (?perm=id) eller en liste (?liste=id), klar
 // til å skrives ut eller lastes ned som bilde med navnet under.
 
 import qrcode from 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/+esm';
@@ -74,25 +74,25 @@ function pngFor(qr, name, caption) {
 }
 
 async function main() {
-  const groupId = params.get('gruppe');
+  const groupId = params.get('perm');
   const listId = params.get('liste');
 
   let name, url, caption, back;
   try {
     if (groupId) {
       const group = await getGroup(groupId);
-      if (!group) return showMessage('Fant ikke denne gruppen.');
+      if (!group) return showMessage('Fant ikke denne permen.');
       name = group.name;
-      url = `${location.origin}/gruppe/?id=${group.id}`;
+      url = `${location.origin}/perm/?id=${group.id}`;
       caption = 'Skann for sjekklistene';
-      back = `/rediger/gruppe/?id=${group.id}`;
+      back = `/rediger/perm/?id=${group.id}`;
     } else {
       const list = await getList(listId);
       if (!list) return showMessage('Fant ikke denne listen.');
       name = list.title;
       url = `${location.origin}/liste/?id=${list.id}`;
       caption = 'Skann for sjekklisten';
-      back = `/rediger/gruppe/?id=${list.group.id}`;
+      back = `/rediger/perm/?id=${list.group.id}`;
     }
   } catch {
     return showMessage('Kunne ikke laste. Sjekk nettet og prøv igjen.');

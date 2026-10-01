@@ -433,7 +433,7 @@ async function main() {
 
   document.title = `Rediger ${list.title} – Husk Klommestein`;
   $('list-title').textContent = list.title;
-  $('back').href = `/gruppe/?id=${list.group.id}`;
+  $('back').href = `/perm/?id=${list.group.id}`;
   $('back').setAttribute('aria-label', `Tilbake til ${list.group.name}`);
   $('done').href = `/liste/?id=${list.id}`;
   leaveVia($('back'));

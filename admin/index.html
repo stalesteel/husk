@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Brukere og roller – Husk Klommestein</title>
 <link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/gruppe.css">
+<link rel="stylesheet" href="/css/perm.css">
 <style>
   .roles { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
   .roles li { margin: 2px 0; }
@@ -28,6 +28,17 @@
   .badge.admin { background: var(--error); color: var(--surface); }
   .badge.full { background: var(--accent); color: var(--accent-text); }
   .user-meta { display: block; color: var(--muted); font-size: 0.9375rem; }
+
+  .signup-state { margin: 12px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--border); }
+  .signup-state.open { background: var(--accent-soft); color: var(--accent-soft-text); }
+  .signup-state strong { display: block; }
+  .signup-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .signup-fields label { margin: 0; font-size: 0.9375rem; }
+  .signup-fields label.wide { grid-column: 1 / -1; }
+  .signup-fields .text-input { margin-top: 4px; }
+  .share { margin-top: 16px; }
+  .share code { display: block; margin: 4px 0 0; padding: 10px 12px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--border); overflow-wrap: anywhere; font-size: 0.9375rem; }
 </style>
 </head>
 <body>
@@ -41,9 +52,34 @@
     <div id="content" hidden>
       <ul class="roles">
         <li><strong>Administrator</strong> – full tilgang til alt, og kan gi roller.</li>
-        <li><strong>Full bruker</strong> – kan lage egne grupper.</li>
-        <li><strong>Redaktør</strong> – kan bare redigere grupper de er lagt til i. Inviteres av eieren fra gruppen.</li>
+        <li><strong>Full bruker</strong> – kan lage egne permer.</li>
+        <li><strong>Redaktør</strong> – kan bare redigere permer de er lagt til i. Inviteres av eieren fra permen.</li>
       </ul>
+
+      <section class="edit-section">
+        <h2>Selvregistrering</h2>
+        <p class="muted">Når den er åpen, kan folk lage sin egen bruker fra forsiden, og blir fulle brukere med en gang. Den stenger av seg selv etter sluttdatoen, eller når alle plassene er brukt.</p>
+        <div id="signup-state" class="signup-state"></div>
+        <form id="signup-form">
+          <div class="signup-fields">
+            <label>Åpen til og med
+              <input id="signup-until" class="text-input" type="date" required></label>
+            <label>Antall nye brukere
+              <input id="signup-max" class="text-input" type="number" min="1" max="500" required></label>
+            <label class="wide">Kode (valgfritt)
+              <input id="signup-code" class="text-input" type="text" maxlength="40" autocomplete="off"
+                     placeholder="F.eks. «kirka2026». Tom: ingen kode."></label>
+          </div>
+          <button id="signup-save" class="button" type="submit">Åpne registreringen</button>
+          <button id="signup-close" class="button secondary" type="button" hidden>Steng nå</button>
+          <p id="signup-message" role="status" hidden></p>
+        </form>
+        <div id="signup-share" class="share" hidden>
+          <strong>Lenke å dele</strong>
+          <code id="signup-link"></code>
+          <button id="signup-copy" class="button secondary" type="button">Kopier lenken</button>
+        </div>
+      </section>
 
       <section class="edit-section">
         <h2>Inviter en full bruker</h2>

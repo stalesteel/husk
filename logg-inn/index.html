@@ -10,7 +10,7 @@
 </head>
 <body>
   <main class="page">
-    <h1>Logg inn</h1>
+    <h1 id="title">Logg inn</h1>
 
     <p id="loading" class="muted">Et øyeblikk …</p>
 
@@ -20,8 +20,29 @@
       <input id="email" type="email" autocomplete="email" inputmode="email" required>
       <button id="send" class="button" type="submit">Send innloggingslenke</button>
       <p id="form-error" class="error" role="alert" hidden></p>
+      <p id="signup-hint" class="muted" style="margin-top: 24px;" hidden>Ny her? <a href="?ny">Lag bruker</a></p>
       <p class="muted" style="margin-top: 24px;"><a href="/om/">Hva er Husk Klommestein?</a></p>
     </form>
+
+    <form id="signup-form" hidden>
+      <p class="muted">Skriv inn e-postadressen du vil bruke. Du får en e-post med en lenke og en kode som logger deg inn. Det er ikke noe passord.</p>
+      <label for="signup-email">E-post</label>
+      <input id="signup-email" type="email" autocomplete="email" inputmode="email" required>
+      <div id="signup-code-field" hidden>
+        <label for="signup-code" style="margin-top: 16px;">Kode</label>
+        <input id="signup-code" class="text" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <p class="muted" style="margin: 6px 0 0;">Du har fått koden av den som tipset deg om Husk Klommestein.</p>
+      </div>
+      <button id="register" class="button" type="submit">Lag bruker</button>
+      <p id="signup-error" class="error" role="alert" hidden></p>
+      <p class="muted" style="margin-top: 24px;">Har du allerede en bruker? <a href="./">Logg inn</a></p>
+    </form>
+
+    <div id="signup-closed" hidden>
+      <p>Det går ikke an å lage bruker selv akkurat nå.</p>
+      <p class="muted">Er du invitert, eller har du allerede en bruker, kan du logge inn.</p>
+      <a class="button" href="./">Logg inn</a>
+    </div>
 
     <div id="sent" hidden>
       <p>Vi har sendt en e-post til <strong id="sent-email"></strong>.</p>
@@ -44,12 +65,17 @@
 
   <script type="module">
     import { getUser, linkError, safeNextPath, sendLoginLink, signOut, verifyCode } from '/js/auth.js';
+    import { getSignupStatus, register } from '/js/data.js';
 
     const $ = (id) => document.getElementById(id);
-    const next = safeNextPath(new URLSearchParams(location.search).get('neste'));
+    const params = new URLSearchParams(location.search);
+    const next = safeNextPath(params.get('neste'));
+    // /logg-inn/?ny lager en ny bruker (når selvregistreringen er åpen).
+    // ?kode=… fyller inn koden, så den kan deles som en ferdig lenke.
+    const signingUp = params.has('ny');
 
     function show(id) {
-      for (const el of ['loading', 'form', 'sent', 'signed-in']) $(el).hidden = el !== id;
+      for (const el of ['loading', 'form', 'signup-form', 'signup-closed', 'sent', 'signed-in']) $(el).hidden = el !== id;
     }
 
     function showError(message) {
@@ -57,15 +83,36 @@
       $('form-error').hidden = !message;
     }
 
-    const user = await getUser();
+    const [user, signup] = await Promise.all([getUser(), getSignupStatus()]);
     if (user) {
       $('user-email').textContent = user.email;
       $('continue').href = next;
       show('signed-in');
+    } else if (signingUp) {
+      $('title').textContent = 'Lag bruker';
+      document.title = 'Lag bruker – Husk Klommestein';
+      if (signup.open) {
+        $('signup-code-field').hidden = !signup.needs_code;
+        $('signup-code').value = params.get('kode') ?? '';
+        show('signup-form');
+        $('signup-email').focus();
+      } else {
+        show('signup-closed');
+      }
     } else {
       show('form');
+      $('signup-hint').hidden = !signup.open;
       showError(linkError());
       $('email').focus();
+    }
+
+    // Etter at e-posten er sendt: vent på lenken, eller skriv inn koden.
+    function showSent(email) {
+      $('sent-email').textContent = email;
+      $('code').value = '';
+      showCodeError(null);
+      show('sent');
+      $('code').focus();
     }
 
     $('form').addEventListener('submit', async (event) => {
@@ -79,11 +126,34 @@
         showError(error);
         return;
       }
-      $('sent-email').textContent = email;
-      $('code').value = '';
-      showCodeError(null);
-      show('sent');
-      $('code').focus();
+      showSent(email);
+    });
+
+    function showSignupError(message) {
+      $('signup-error').textContent = message ?? '';
+      $('signup-error').hidden = !message;
+    }
+
+    // Ny bruker: lages av serverfunksjonen, og så logger personen inn som vanlig.
+    $('signup-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = $('signup-email').value.trim();
+      showSignupError(null);
+      $('register').disabled = true;
+      try {
+        await register(email, $('signup-code').value.trim());
+      } catch (error) {
+        $('register').disabled = false;
+        showSignupError(error.message);
+        return;
+      }
+      const error = await sendLoginLink(email, next);
+      $('register').disabled = false;
+      if (error) {
+        showSignupError(error);
+        return;
+      }
+      showSent(email);
     });
 
     function showCodeError(message) {
@@ -106,8 +176,8 @@
     });
 
     $('again').addEventListener('click', () => {
-      show('form');
-      $('email').select();
+      show(signingUp ? 'signup-form' : 'form');
+      $(signingUp ? 'signup-email' : 'email').select();
     });
 
     $('sign-out').addEventListener('click', async () => {

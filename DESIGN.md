@@ -37,21 +37,33 @@ Alt grensesnitt er på norsk (bokmål).
 
 ## Struktur
 
-**Grupper er øverste nivå, og alle lister hører til en gruppe.** Ingen løse lister.
+**Permer er øverste nivå, og alle lister hører til en perm.** Ingen løse lister.
 
-En gruppe er for eksempel «Hytte på Skjeggestad», med listene «Ankomst hytte»,
-«Forlat hytta» og «Utvendig sjekkliste».
+En perm er for eksempel «Hyttepermen», med listene «Ankomst hytte», «Forlat hytta» og
+«Utvendig sjekkliste». Brukerne lærer å kalle dem hyttepermen, båtpermen, Vineyard-permen.
 
-Gruppesiden er trolig den viktigste siden i appen: overskrift, et bilde av stedet, en
-beskrivende tekst som gjerne kan være lang, og nederst en knapp til hver liste. Den
-fungerer som en liten hjemmeside du deler med gjester som skal låne hytta. **QR-koden på
-veggen bør peke hit**, ikke til en enkeltliste — da velger gjesten selv om han kommer
-eller drar.
+**Hvorfor «perm».** Ordet het først «gruppe», men det leses som en gruppe mennesker. Andre
+kandidater bommet i en del tilfeller: «sted» passer ikke når maskinen kan flyttes eller står
+i en bil, og «prosjekt» passer ofte ikke i det hele tatt. En perm er både en samling
+sjekklister og stedet du finner velkomst, telefonnumre og «hvis noe skjer», slik mange
+hytter allerede har en hytteperm. Flertall: permer («Dine permer»).
 
-Gruppen er også eierskapsenheten. Den som lager gruppen eier den, og listene arver. Skal
-noen andre få redigere, gis det på gruppen én gang i stedet for på hver liste.
+Permen er trolig den viktigste siden i appen: overskrift, et bilde, en beskrivende tekst som
+gjerne kan være lang, og nederst en knapp til hver liste. Den fungerer ofte som en liten
+hjemmeside du deler med gjester som skal låne hytta, men kan også bare være en samling
+lister. **QR-koden på veggen bør peke hit**, ikke til en enkeltliste — da velger gjesten
+selv om han kommer eller drar.
 
-Eiere skal kunne hente ut QR-kode både for gruppesiden og for hver enkelt liste.
+Permen er også eierskapsenheten. Den som lager permen eier den, og listene arver. Skal
+noen andre få redigere, gis det på permen én gang i stedet for på hver liste.
+
+Eiere skal kunne hente ut QR-kode både for permen og for hver enkelt liste.
+
+Utseendet hinter om ordet uten å overdrive: på forsiden ligger permene som rygger i en
+stabel, med etikett og grephull, og arket i permen har to hull i venstre marg.
+
+Adressene er `/perm/?id=…` og `/rediger/perm/?id=…`. I koden og databasen heter en perm
+fortsatt `group` (tabellen `groups`, `get_group` osv.); det vises aldri for brukerne.
 
 ## Tilgang
 
@@ -63,19 +75,28 @@ har skrudd av vannet. Men ingen skal kunne endre listen uten å være logget inn
 For innlogging anbefales e-post med engangslenke — ingen passord å glemme eller
 administrere for en familie- og menighetskrets.
 
-**Kontoer kun ved invitasjon, med tre roller.** Åpen registrering er slått av i Supabase.
-Appen oppretter aldri brukere når en ukjent e-postadresse skrives inn ved innlogging.
+**Kontoer ved invitasjon, eller når administratoren åpner for selvregistrering. Tre
+roller.** Åpen registrering er slått av i Supabase. Appen oppretter aldri brukere når en
+ukjent e-postadresse skrives inn ved innlogging.
 
 | Rolle | Kan | Blir til ved |
 |---|---|---|
-| Administrator | Alt, i alle grupper, og gi roller | En administrator gjør deg til det (admin-siden) |
-| Full bruker | Lage egne grupper | Invitasjon fra en administrator (admin-siden) |
-| Redaktør | Redigere grupper de er lagt til i | Eieren skriver e-postadressen i gruppen |
+| Administrator | Alt, i alle permer, og gi roller | En administrator gjør deg til det (admin-siden) |
+| Full bruker | Lage egne permer | Invitasjon fra en administrator, eller selvregistrering |
+| Redaktør | Redigere permer de er lagt til i | Eieren skriver e-postadressen i permen |
 
 Eieren trenger ikke vite om personen har konto: finnes den, legges personen bare til;
 finnes den ikke, sendes en invitasjon, og den nye brukeren blir redaktør. Invitasjonene
 sendes av Edge Function-en `inviter`, fordi de krever den hemmelige nøkkelen, som ikke kan
 ligge i nettleseren.
+
+**Selvregistrering** sparer administratoren for å invitere én og én, men med kontroll:
+den åpnes fra admin-siden til en sluttdato og for et største antall nye brukere, og kan
+kreve en kode (som deles i familiechatten eller kunngjøres i kirka). Den stenger av seg
+selv. Mens den er åpen, viser forsiden «Lag bruker», og den nye brukeren blir full bruker.
+Brukeren lages av Edge Function-en `registrer`, som svarer det samme om adressen hadde
+konto fra før, så ingen kan bruke den til å finne ut hvem som har konto. Deretter logger
+personen inn med lenke eller kode som vanlig.
 
 `stale@klommestein.no` er administrator. Administratorens tilgang gis av tilgangsreglene i
 databasen, men i appen slås den på med bryteren «Adminmodus» på forsiden; ellers ser
@@ -159,8 +180,8 @@ riktig format. Man skal kunne ta flere bilder per steg, og fjerne dem igjen.
 
 Arbeidsflyten er:
 
-1. Opprett gruppe (blir din)
-2. Opprett liste i gruppen, gi den navn
+1. Opprett perm (blir din)
+2. Opprett liste i permen, gi den navn
 3. Begynn på steg 1: skriv tittel, skriv beskrivelse, ta bilde
 4. «Neste steg»
 5. Samme grensesnitt brukes når en eksisterende liste redigeres senere
@@ -181,8 +202,8 @@ Dette er lavt prioritert, siden QR blir hovedveien inn.
 
 Dette er ikke et ferdig skjema, men de føringene som er dyre å legge til i ettertid:
 
-- Grupper som egen enhet, med navn, lang beskrivelse, bilde og eier
-- Alle lister hører til en gruppe
+- Permer som egen enhet, med navn, lang beskrivelse, bilde og eier
+- Alle lister hører til en perm
 - Steg hører til en liste, med sortering
 - **Bilder er en egen, sortert samling under hvert steg** — ikke ett bildefelt på steget
 - Hvert bilde kan ha en valgfri kort etikett
@@ -221,7 +242,7 @@ ennå — bare tekst — så flyttingen er billig.
 10. **Ta med søppel** — Ta med søppel og kast det i containerne ved porten til brygga.
 11. **Tilbakestill kalesje** — Husker du ikke hvordan, se sjekklista for før tur — nå gjør du bare det motsatte ;-)
 
-Disse to bør høre til en gruppe «Båten» eller lignende.
+Disse to bør høre til en perm «Båten» eller lignende.
 
 ## Til slutt, når Husk virker
 

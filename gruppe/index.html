@@ -2,94 +2,10 @@
 <html lang="no">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Husk Klommestein</title>
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/gruppe.css">
+<!-- Gruppene heter nå permer. Gamle lenker sendes videre til samme perm. -->
+<script>location.replace('/perm/' + location.search + location.hash);</script>
 </head>
-<body>
-  <main class="gp">
-    <p id="message" class="muted gp-message">Et øyeblikk …</p>
-    <article id="group" hidden>
-      <header id="hero-wrap" class="gp-hero no-image">
-        <img id="hero" alt="" hidden>
-        <nav class="gp-bar">
-          <a id="home" class="pill" href="/" hidden>‹ Mine grupper</a>
-          <a id="edit" class="pill" hidden>Rediger gruppen</a>
-        </nav>
-      </header>
-      <div class="gp-sheet">
-        <h1 id="name"></h1>
-        <p id="description" class="description"></p>
-        <h2 class="gp-section-title">Sjekklister</h2>
-        <nav id="lists" aria-label="Sjekklister"></nav>
-      </div>
-    </article>
-  </main>
-
-  <script type="module">
-    import { canEdit } from '/js/admin.js';
-    import { getUser } from '/js/auth.js';
-    import { getGroup, imageUrl } from '/js/data.js';
-    import { checkIcon, el, linkify } from '/js/dom.js';
-
-    const $ = (id) => document.getElementById(id);
-
-    function showMessage(text) {
-      $('message').textContent = text;
-      $('message').hidden = false;
-      $('group').hidden = true;
-    }
-
-    let group;
-    try {
-      group = await getGroup(new URLSearchParams(location.search).get('id'));
-    } catch {
-      showMessage('Kunne ikke laste siden. Sjekk nettet og prøv igjen.');
-    }
-
-    if (group === null) showMessage('Fant ikke denne siden. Sjekk at lenken er riktig.');
-
-    if (group) {
-      document.title = `${group.name} – Husk Klommestein`;
-      $('name').textContent = group.name;
-      $('description').replaceChildren(...linkify(group.description));
-      $('description').hidden = !group.description;
-      // Innloggede kommer tilbake til gruppene sine. Gjester fra en QR-kode har
-      // ingenting å se på forsiden, så de får ikke lenken.
-      $('home').hidden = !(await getUser());
-
-      if (canEdit(group)) {
-        $('edit').href = `/rediger/gruppe/?id=${group.id}`;
-        $('edit').hidden = false;
-      }
-
-      // Mangler bildet eller feiler det, blir toppen en grønn flate i stedet
-      // for et ødelagt bilde.
-      if (group.image_path) {
-        $('hero').addEventListener('error', () => {
-          $('hero').hidden = true;
-          $('hero-wrap').classList.add('no-image');
-        });
-        $('hero').src = imageUrl(group.image_path);
-        $('hero').hidden = false;
-        $('hero-wrap').classList.remove('no-image');
-      }
-
-      $('lists').append(...group.lists.map((list) =>
-        el('a', { class: 'list-card', href: `/liste/?id=${list.id}` },
-          checkIcon(),
-          el('span', { class: 'card-title' }, list.title),
-          el('span', { class: 'card-chevron', 'aria-hidden': 'true' }, '›'))));
-      if (group.lists.length === 0) {
-        $('lists').append(el('p', { class: 'muted' }, 'Ingen sjekklister ennå.'));
-      }
-
-      $('message').hidden = true;
-      $('group').hidden = false;
-    }
-  </script>
-</body>
+<body><p><a href="/perm/">Gå videre</a></p></body>
 </html>

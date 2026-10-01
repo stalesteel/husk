@@ -1,8 +1,8 @@
-// Edge Function «inviter»: legger til en bruker som redaktør i en gruppe, eller
+// Edge Function «inviter»: legger til en bruker som redaktør i en perm, eller
 // som full bruker, og inviterer vedkommende på e-post om kontoen ikke finnes.
 //
 // Kalles fra appen med innloggingen til den som inviterer:
-//   { email, role: 'editor', group_id }  – eieren av gruppen (eller en administrator)
+//   { email, role: 'editor', group_id }  – eieren av permen (eller en administrator)
 //   { email, role: 'full' }              – bare administratorer
 //
 // Den hemmelige nøkkelen trengs for å sende invitasjoner og ligger bare her,
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     if (!callerIsAdmin) return fail(403, 'forbidden', 'Bare administratorer kan invitere fulle brukere.');
   } else {
     const { data: group } = await admin.from('groups').select('id, name, owner_id').eq('id', body.group_id ?? '').maybeSingle();
-    if (!group) return fail(404, 'no_group', 'Fant ikke gruppen.');
+    if (!group) return fail(404, 'no_group', 'Fant ikke permen.');
     if (group.owner_id !== caller.id && !callerIsAdmin) {
       return fail(403, 'forbidden', 'Bare eieren kan gi redigeringstilgang.');
     }
@@ -76,13 +76,13 @@ Deno.serve(async (req) => {
   if (lookupError) return fail(500, 'lookup_failed', 'Kunne ikke slå opp brukeren.');
 
   if (existingId && existingId === groupOwner) {
-    return fail(400, 'is_owner', 'Personen eier gruppen, og kan allerede redigere.');
+    return fail(400, 'is_owner', 'Personen eier permen, og kan allerede redigere.');
   }
 
   let userId: string = existingId;
   let invited = false;
   if (!userId) {
-    const redirectTo = role === 'editor' ? `${SITE}/gruppe/?id=${body.group_id}` : `${SITE}/`;
+    const redirectTo = role === 'editor' ? `${SITE}/perm/?id=${body.group_id}` : `${SITE}/`;
     const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
       redirectTo,
       // Tilgjengelig i e-postmalen som {{ .Data.group_name }}.

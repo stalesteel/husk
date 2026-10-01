@@ -9,6 +9,10 @@
   --accent-soft: #d8efe2;
   --accent-soft-text: #134a31;
   --error: #b3261e;
+  /* Hullene i arket i en perm */
+  --hole: #c9c9c3;
+  --hole-ring: rgba(31, 111, 74, 0.12);
+  --margin-line: rgba(31, 111, 74, 0.22);
   color-scheme: light dark;
 }
 
@@ -24,6 +28,9 @@
     --accent-soft: #1d3a2b;
     --accent-soft-text: #bfe8d0;
     --error: #f2b8b5;
+    --hole: #000000;
+    --hole-ring: rgba(79, 181, 132, 0.16);
+    --margin-line: rgba(79, 181, 132, 0.3);
   }
 }
 
@@ -60,6 +67,7 @@ label { display: block; font-weight: 600; margin-bottom: 6px; }
 
 /* Minst 16px, ellers zoomer iPhone Safari inn når feltet får fokus. */
 input[type="email"],
+input.text,
 input.code {
   width: 100%;
   font: inherit;

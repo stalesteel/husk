@@ -7,9 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Husk Klommestein</title>
 <link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/gruppe.css">
+<link rel="stylesheet" href="/css/perm.css">
 <style>
-  /* Toppen: samme grønne flate som en gruppeside uten bilde, med logo. */
+  /* Toppen: samme grønne flate som en perm uten bilde, med logo. */
   .home-hero {
     position: relative;
     padding: calc(env(safe-area-inset-top) + 56px) 24px 52px;
@@ -53,56 +53,67 @@
   .home-main { padding: 26px 20px calc(env(safe-area-inset-bottom) + 40px); }
   .home-main .gp-section-title { margin-top: 0; }
 
-  /* Gruppene: kort med bilde av stedet (eller forbokstaven), navn, antall lister
-     og rollen. Eier: grønt kort. Redaktør: lysegrønt kort. */
-  .group-card {
+  /* Permene: som ryggen på en ringperm, liggende i en stabel. Bilde (eller
+     forbokstaven), etikett med navn, antall lister og rollen, og grephullet
+     ytterst. Eier: grønn perm. Redaktør: lysegrønn perm. */
+  .perm-card {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     min-height: 76px;
-    margin-top: 10px;
-    padding: 10px 14px 10px 10px;
-    border-radius: 18px;
-    background: var(--accent);
+    margin-top: 8px;
+    padding: 9px 12px 9px 9px;
+    border-radius: 10px;
+    background-color: var(--accent);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 45%, rgba(0, 0, 0, 0.12));
     color: var(--accent-text);
     text-decoration: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(31, 111, 74, 0.18);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 6px 16px rgba(31, 111, 74, 0.18);
   }
-  .group-card.editor {
-    background: var(--accent-soft);
-    color: var(--accent-soft-text);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  .perm-card.editor {
+    background-color: #9fd3b6;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(31, 111, 74, 0.1);
   }
-  .group-card:active { transform: scale(0.99); }
+  .perm-card:active { transform: scale(0.99); }
 
   .thumb {
     flex: none;
     display: grid;
     place-items: center;
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: 6px;
     background: rgba(255, 255, 255, 0.2);
     font-size: 1.5rem;
     font-weight: 700;
   }
-  .group-card.editor .thumb { background: var(--surface); }
+  .perm-card.editor .thumb { background: rgba(255, 255, 255, 0.45); color: var(--accent-soft-text); }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-  .card-text { flex: 1; min-width: 0; }
-  .card-name { display: block; font-size: 1.0625rem; font-weight: 700; overflow-wrap: anywhere; }
-  .card-meta { display: block; font-size: 0.875rem; opacity: 0.8; }
-
-  .role {
-    flex: none;
-    padding: 2px 10px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.22);
-    font-size: 0.8125rem;
-    font-weight: 700;
+  /* Etiketten på ryggen */
+  .card-label {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 10px;
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   }
-  .group-card.editor .role { background: var(--surface); }
+  .card-name { display: block; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+  .card-meta { display: block; font-size: 0.875rem; color: var(--muted); }
+  .role { font-weight: 700; color: var(--accent); }
+
+  /* Grephullet, med metallring */
+  .finger-hole {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.42);
+    box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.45), 0 0 0 3px #d4ddd8, 0 1px 0 4px rgba(0, 0, 0, 0.12);
+  }
 
   .new-card {
     display: block;
@@ -118,8 +129,8 @@
     cursor: pointer;
   }
 
-  #new-group { margin-top: 12px; }
-  #new-group input {
+  #new-perm { margin-top: 12px; }
+  #new-perm input {
     width: 100%;
     font: inherit;
     font-size: 1.0625rem;
@@ -169,7 +180,11 @@
     <main class="home-main">
       <section id="guest" class="guest" hidden>
         <p>Har du fått en lenke eller skannet en QR-kode, trenger du ingen konto. Er du invitert til å lage eller redigere sjekklister, logger du inn her.</p>
-        <a class="button" href="/logg-inn/">Logg inn</a>
+        <div id="signup" hidden>
+          <p>Akkurat nå kan du også lage din egen bruker, og lage permer med sjekklister for hytta, båten eller hva du vil.</p>
+          <a class="button" href="/logg-inn/?ny">Lag bruker</a>
+        </div>
+        <a id="sign-in" class="button" href="/logg-inn/">Logg inn</a>
         <a class="button secondary" href="/om/">Les mer om Husk Klommestein</a>
         <a class="film-card" href="/film/">
           <img src="/film/plakat.jpg" alt="">
@@ -178,12 +193,12 @@
         </a>
       </section>
 
-      <h2 id="groups-title" class="gp-section-title" hidden>Mine grupper</h2>
-      <nav id="groups" aria-label="Mine grupper"></nav>
-      <button id="show-new-group" class="new-card" type="button" hidden>+ Ny gruppe</button>
-      <form id="new-group" hidden>
-        <input id="new-group-name" type="text" placeholder="Navn, f.eks. «Hytta på Skjeggestad»" aria-label="Navn på gruppen" required>
-        <button class="button" type="submit">Lag gruppen</button>
+      <h2 id="perms-title" class="gp-section-title" hidden>Dine permer</h2>
+      <nav id="perms" aria-label="Dine permer"></nav>
+      <button id="show-new-perm" class="new-card" type="button" hidden>+ Ny perm</button>
+      <form id="new-perm" hidden>
+        <input id="new-perm-name" type="text" placeholder="Navn, f.eks. «Hyttepermen» eller «Båtpermen»" aria-label="Navn på permen" required>
+        <button class="button" type="submit">Lag permen</button>
       </form>
 
       <footer class="home-footer">
@@ -198,7 +213,7 @@
 
   <script type="module">
     import { getUser, hasLinkError } from '/js/auth.js';
-    import { adminListGroups, canCreateGroups, createGroup, getMyGroups, imageUrl, isAdmin } from '/js/data.js';
+    import { adminListGroups, canCreateGroups, createGroup, getMyGroups, getSignupStatus, imageUrl, isAdmin } from '/js/data.js';
     import { adminModeOn, setAdminMode } from '/js/admin.js';
     import { checkIcon, el } from '/js/dom.js';
 
@@ -211,59 +226,60 @@
 
     const lists = (n) => `${n} ${n === 1 ? 'liste' : 'lister'}`;
 
-    // Et kort for en gruppe: bilde av stedet, eller forbokstaven.
-    function groupCard(group, owner) {
+    // En perm: ryggen med bilde (eller forbokstaven), etikett og grephull.
+    function permCard(perm, owner) {
       const thumb = el('span', { class: 'thumb', 'aria-hidden': 'true' });
-      const letter = () => thumb.replaceChildren(group.name.trim().charAt(0).toUpperCase());
-      if (group.image_path) {
-        const img = el('img', { src: imageUrl(group.image_path), alt: '', loading: 'lazy' });
+      const letter = () => thumb.replaceChildren(perm.name.trim().charAt(0).toUpperCase());
+      if (perm.image_path) {
+        const img = el('img', { src: imageUrl(perm.image_path), alt: '', loading: 'lazy' });
         img.addEventListener('error', letter);
         thumb.append(img);
       } else {
         letter();
       }
-      return el('a', { class: owner ? 'group-card' : 'group-card editor', href: `/gruppe/?id=${group.id}` },
+      return el('a', { class: owner ? 'perm-card' : 'perm-card editor', href: `/perm/?id=${perm.id}` },
         thumb,
-        el('span', { class: 'card-text' },
-          el('span', { class: 'card-name' }, group.name),
-          el('span', { class: 'card-meta' }, lists(group.lists?.[0]?.count ?? 0))),
-        el('span', { class: 'role' }, owner ? 'Eier' : 'Redaktør'));
+        el('span', { class: 'card-label' },
+          el('span', { class: 'card-name' }, perm.name),
+          el('span', { class: 'card-meta' }, `${lists(perm.lists?.[0]?.count ?? 0)} · `,
+            el('span', { class: 'role' }, owner ? 'Eier' : 'Redaktør'))),
+        el('span', { class: 'finger-hole', 'aria-hidden': 'true' }));
     }
 
     const user = await getUser();
     if (user) {
       $('status').innerHTML = 'Innlogget som <strong></strong> · <a href="/logg-inn/">Konto</a>';
       $('status').querySelector('strong').textContent = user.email;
-      $('groups-title').hidden = false;
+      $('perms-title').hidden = false;
 
-      const groupsEl = $('groups');
+      const permsEl = $('perms');
       const [admin, creator] = await Promise.all([isAdmin(), canCreateGroups()]);
 
-      async function renderGroups() {
+      async function renderPerms() {
         if (admin && adminModeOn()) {
-          // Alle grupper, med eier og antall lister, for å kunne rydde.
+          // Alle permer, med eier og antall lister, for å kunne rydde.
           const all = await adminListGroups().catch(() => []);
-          $('groups-title').textContent = 'Alle grupper';
-          groupsEl.replaceChildren(
-            el('p', { class: 'admin-banner' }, `Adminmodus – alle ${all.length} grupper · `,
+          $('perms-title').textContent = 'Alle permer';
+          permsEl.replaceChildren(
+            el('p', { class: 'admin-banner' }, `Adminmodus – alle ${all.length} permer · `,
               el('a', { href: '/admin/' }, 'Brukere og roller')),
-            el('div', {}, all.map((group) => el('div', { class: 'admin-row' },
+            el('div', {}, all.map((perm) => el('div', { class: 'admin-row' },
               el('div', {},
-                el('a', { class: 'name', href: `/gruppe/?id=${group.id}` }, group.name),
-                el('small', {}, `${group.owner_email} · ${lists(group.list_count)}`)),
-              el('a', { class: 'edit', href: `/rediger/gruppe/?id=${group.id}` }, 'Rediger')))));
+                el('a', { class: 'name', href: `/perm/?id=${perm.id}` }, perm.name),
+                el('small', {}, `${perm.owner_email} · ${lists(perm.list_count)}`)),
+              el('a', { class: 'edit', href: `/rediger/perm/?id=${perm.id}` }, 'Rediger')))));
         } else {
-          $('groups-title').textContent = 'Mine grupper';
-          const groups = await getMyGroups(user.id).catch(() => []);
-          groupsEl.replaceChildren(...groups.map((group) => groupCard(group, group.owner_id === user.id)));
-          if (!groups.length) {
-            groupsEl.append(el('p', { class: 'muted' }, creator
-              ? 'Du har ingen grupper ennå.'
-              : 'Du har ingen grupper ennå. Når noen gir deg tilgang til en gruppe, står den her.'));
+          $('perms-title').textContent = 'Dine permer';
+          const perms = await getMyGroups(user.id).catch(() => []);
+          permsEl.replaceChildren(...perms.map((perm) => permCard(perm, perm.owner_id === user.id)));
+          if (!perms.length) {
+            permsEl.append(el('p', { class: 'muted' }, creator
+              ? 'Du har ingen permer ennå. Lag den første, for eksempel «Hyttepermen».'
+              : 'Du har ingen permer ennå. Når noen gir deg tilgang til en perm, står den her.'));
           }
         }
       }
-      await renderGroups();
+      await renderPerms();
 
       if (admin) {
         const toggle = $('admin-mode');
@@ -271,36 +287,41 @@
         $('admin-toggle').hidden = false;
         toggle.addEventListener('change', () => {
           setAdminMode(toggle.checked);
-          renderGroups();
+          renderPerms();
         });
       }
 
-      // Ny gruppe: blir din, og åpnes i redigeringen så du kan legge inn
+      // Ny perm: blir din, og åpnes i redigeringen så du kan legge inn
       // bilde, beskrivelse og lister. Bare for fulle brukere; redaktører
-      // redigerer bare grupper de er lagt til i.
-      const show = $('show-new-group');
-      const form = $('new-group');
+      // redigerer bare permer de er lagt til i.
+      const show = $('show-new-perm');
+      const form = $('new-perm');
       show.hidden = !creator;
       show.addEventListener('click', () => {
         show.hidden = true;
         form.hidden = false;
-        $('new-group-name').focus();
+        $('new-perm-name').focus();
       });
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const name = $('new-group-name').value.trim();
+        const name = $('new-perm-name').value.trim();
         if (!name) return;
         form.querySelector('button').disabled = true;
         try {
           const { id } = await createGroup(name);
-          location.assign(`/rediger/gruppe/?id=${id}`);
+          location.assign(`/rediger/perm/?id=${id}`);
         } catch {
           form.querySelector('button').disabled = false;
-          alert('Kunne ikke lage gruppen. Sjekk nettet og prøv igjen.');
+          alert('Kunne ikke lage permen. Sjekk nettet og prøv igjen.');
         }
       });
     } else {
       $('guest').hidden = false;
+      // Er selvregistreringen åpen, blir «Lag bruker» hovedknappen.
+      if ((await getSignupStatus()).open) {
+        $('signup').hidden = false;
+        $('sign-in').classList.add('secondary');
+      }
     }
   </script>
 </body>

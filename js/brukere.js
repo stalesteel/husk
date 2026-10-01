@@ -1,9 +1,9 @@
-// Admin-siden (/admin/): inviter fulle brukere, og gi og ta roller.
+// Admin-siden (/admin/): selvregistrering, inviter fulle brukere, og gi og ta roller.
 // Det er databasen som sjekker at du er administrator (admin_* i
 // supabase/migrations/…_roller.sql); siden viser bare det den får.
 
 import { getUser } from './auth.js';
-import { adminListUsers, adminSetAdmin, adminSetFull, invite, isAdmin } from './data.js';
+import { adminGetSignup, adminListUsers, adminSetAdmin, adminSetFull, adminSetSignup, invite, isAdmin } from './data.js';
 import { el } from './dom.js';
 
 const $ = (id) => document.getElementById(id);
@@ -23,12 +23,15 @@ function inviteMessage(text, isError = false) {
 
 const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
+const dayMonth = (date) => new Date(date).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long' });
+
 function describe(user) {
   const parts = [];
-  if (user.owned_groups) parts.push(`eier ${count(user.owned_groups, 'gruppe', 'grupper')}`);
-  if (user.edited_groups) parts.push(`redaktør i ${count(user.edited_groups, 'gruppe', 'grupper')}`);
-  if (user.invited) parts.push('invitert, ikke logget inn ennå');
-  return parts.join(' · ') || 'ingen grupper';
+  if (user.owned_groups) parts.push(`eier ${count(user.owned_groups, 'perm', 'permer')}`);
+  if (user.edited_groups) parts.push(`redaktør i ${count(user.edited_groups, 'perm', 'permer')}`);
+  if (user.self_signed_at) parts.push(`registrerte seg selv ${dayMonth(user.self_signed_at)}`);
+  if (user.invited) parts.push(user.self_signed_at ? 'ikke logget inn ennå' : 'invitert, ikke logget inn ennå');
+  return parts.join(' · ') || 'ingen permer';
 }
 
 async function change(action, question) {
@@ -64,7 +67,7 @@ async function renderUsers() {
         ? el('button', {
             type: 'button',
             onclick: () => change(() => adminSetFull(user.user_id, false),
-              `Gjøre ${user.email} til redaktør? Personen beholder gruppene sine, men kan ikke lage nye.`),
+              `Gjøre ${user.email} til redaktør? Personen beholder permene sine, men kan ikke lage nye.`),
           }, 'Gjør til redaktør')
         : el('button', {
             type: 'button', onclick: () => change(() => adminSetFull(user.user_id, true)),
@@ -80,7 +83,7 @@ async function renderUsers() {
       tools.push(el('button', {
         type: 'button',
         onclick: () => change(() => adminSetAdmin(user.user_id, true),
-          `Gjøre ${user.email} til administrator? Personen får full tilgang til alle grupper og kan gi roller.`),
+          `Gjøre ${user.email} til administrator? Personen får full tilgang til alle permer og kan gi roller.`),
       }, 'Gjør til administrator'));
     }
 
@@ -90,6 +93,101 @@ async function renderUsers() {
       tools.length ? el('div', { class: 'row-tools' }, tools) : null);
   }));
 }
+
+// ---------------------------------------------------------------------------
+// Selvregistrering
+// ---------------------------------------------------------------------------
+
+// Datofeltet gir en dag; registreringen er åpen ut den dagen, i din tidssone.
+const endOfDay = (value) => {
+  const [y, m, d] = value.split('-').map(Number);
+  return new Date(y, m - 1, d, 23, 59, 59).toISOString();
+};
+const dateValue = (date) => {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+const longDate = (date) => new Date(date).toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' });
+
+function signupMessage(text, isError = false) {
+  $('signup-message').textContent = text ?? '';
+  $('signup-message').className = isError ? 'error' : 'muted';
+  $('signup-message').hidden = !text;
+}
+
+function renderSignup(info) {
+  const state = $('signup-state');
+  const places = `${info.used} av ${count(info.max_signups, 'plass', 'plasser')} brukt`;
+  state.classList.toggle('open', info.open);
+  if (info.open) {
+    state.replaceChildren(
+      el('strong', {}, `Åpen til og med ${longDate(info.open_until)}`),
+      `${places} · ${info.code ? `kode: ${info.code}` : 'ingen kode'}`);
+  } else if (info.open_until && new Date(info.open_until) > new Date()) {
+    state.replaceChildren(el('strong', {}, 'Stengt – alle plassene er brukt'),
+      `${places}. Øk antallet for å åpne igjen.`);
+  } else {
+    state.replaceChildren(el('strong', {}, 'Stengt'),
+      'Bare de du inviterer, kan få bruker.');
+  }
+
+  // Skjemaet: gjeldende verdier når den er åpen, ellers forslag (en uke, 20).
+  const running = info.open_until && new Date(info.open_until) > new Date();
+  const inAWeek = new Date();
+  inAWeek.setDate(inAWeek.getDate() + 7);
+  $('signup-until').min = dateValue(new Date());
+  $('signup-until').value = dateValue(running ? new Date(info.open_until) : inAWeek);
+  $('signup-max').value = info.max_signups ?? 20;
+  $('signup-code').value = info.code ?? '';
+  $('signup-save').textContent = running ? 'Lagre endringene' : 'Åpne registreringen';
+  $('signup-close').hidden = !running;
+
+  // Lenken tar med koden, så den kan deles som den er.
+  const link = `${location.origin}/logg-inn/?ny${info.code ? `&kode=${encodeURIComponent(info.code)}` : ''}`;
+  $('signup-link').textContent = link;
+  $('signup-share').hidden = !info.open;
+}
+
+async function setupSignup() {
+  renderSignup(await adminGetSignup());
+
+  $('signup-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    signupMessage(null);
+    $('signup-save').disabled = true;
+    try {
+      renderSignup(await adminSetSignup(endOfDay($('signup-until').value),
+        Number($('signup-max').value), $('signup-code').value.trim()));
+      signupMessage('Lagret.');
+    } catch (error) {
+      signupMessage(error.message || 'Kunne ikke lagre. Prøv igjen.', true);
+    } finally {
+      $('signup-save').disabled = false;
+    }
+  });
+
+  $('signup-close').addEventListener('click', async () => {
+    signupMessage(null);
+    try {
+      renderSignup(await adminSetSignup(null, null, $('signup-code').value.trim()));
+      signupMessage('Registreringen er stengt.');
+    } catch (error) {
+      signupMessage(error.message || 'Kunne ikke stenge. Prøv igjen.', true);
+    }
+  });
+
+  $('signup-copy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText($('signup-link').textContent);
+      $('signup-copy').textContent = 'Kopiert ✓';
+    } catch {
+      $('signup-copy').textContent = 'Merk og kopier lenken over';
+    }
+    setTimeout(() => { $('signup-copy').textContent = 'Kopier lenken'; }, 2500);
+  });
+}
+
+// ---------------------------------------------------------------------------
 
 function setupInvite() {
   $('invite').addEventListener('submit', async (event) => {
@@ -123,7 +221,7 @@ async function main() {
   if (!(await isAdmin())) return showMessage('Denne siden er bare for administratorer.');
 
   setupInvite();
-  await renderUsers();
+  await Promise.all([setupSignup().catch(() => signupMessage('Kunne ikke hente registreringen.', true)), renderUsers()]);
   $('message').hidden = true;
   $('content').hidden = false;
 }

@@ -1,4 +1,4 @@
-/* Gruppesiden, og redigeringen av den, som skal se lik ut. */
+/* Permen, og redigeringen av den, som skal se lik ut. */
 
 .group {
   max-width: 640px;
@@ -43,7 +43,7 @@
 .lists .button { margin-top: 12px; }
 
 /* ---------------------------------------------------------------------------
-   Redigering av gruppen: samme oppsett, med felt i stedet for tekst.
+   Redigering av permen: samme oppsett, med felt i stedet for tekst.
    --------------------------------------------------------------------------- */
 
 .editing-group h2 { font-size: 1.25rem; margin: 0 0 4px; }
@@ -198,8 +198,8 @@
 .button.danger { background: var(--error); color: var(--surface); }
 
 /* ---------------------------------------------------------------------------
-   Gruppesiden: bildet av stedet øverst, helt ut til kantene, og innholdet på
-   et ark som legger seg litt inn over bildekanten. Brukes av både gruppesiden
+   Permen: bildet øverst, helt ut til kantene, og innholdet på
+   et ark som legger seg litt inn over bildekanten. Brukes av både permen
    og redigeringen av den, så eieren ser det gjestene ser. Mangler bildet,
    blir toppen en rolig grønn flate.
    --------------------------------------------------------------------------- */
@@ -207,7 +207,6 @@
 .gp {
   max-width: 640px;
   margin: 0 auto;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 40px);
 }
 
 .gp-message { padding: calc(env(safe-area-inset-top) + 24px) 20px; }
@@ -233,7 +232,7 @@
 @media (min-width: 672px) {
   .gp { padding-top: 24px; }
   .gp-hero { border-radius: 24px; }
-  .gp-sheet { border-radius: 24px; margin-left: 12px; margin-right: 12px; }
+  .gp-sheet { border-radius: 24px; margin: -24px 12px 40px; }
 }
 
 /* Navigasjon oppå bildet: små mørke merkelapper som er lesbare på alle bilder. */
@@ -273,10 +272,30 @@
 .gp-sheet {
   position: relative;
   margin-top: -24px;
-  padding: 26px 20px 8px;
+  min-height: 60vh; /* så marglinjen går et stykke ned også på korte sider */
+  padding: 26px 20px calc(env(safe-area-inset-bottom) + 48px) 42px;
   border-radius: 24px 24px 0 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  /* Marglinjen på et hullark */
+  background-image: linear-gradient(to right, transparent 29px, var(--margin-line) 29px,
+    var(--margin-line) 30px, transparent 30px);
 }
+
+/* To hull i margen, med hullforsterker, som på et ark i en ringperm. Et lite
+   hint om at dette er en perm, uten å ta plass fra innholdet. */
+.gp-sheet::before,
+.gp-sheet::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--hole);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.45), 0 0 0 4px var(--hole-ring);
+}
+.gp-sheet::before { top: 92px; }
+.gp-sheet::after { top: 252px; }
 
 .gp-sheet h1 {
   margin: 0 0 12px;

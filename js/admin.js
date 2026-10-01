@@ -1,5 +1,5 @@
 // Adminmodus: en administrator (se supabase/migrations/…_admin.sql) kan slå
-// den på fra forsiden, og ser da alle grupper og kan redigere og slette alt.
+// den på fra forsiden, og ser da alle permer og kan redigere og slette alt.
 // Det er tilgangsreglene i databasen som gir tilgangen; bryteren avgjør bare
 // om appen viser den, så vanlig bruk ser ut som for alle andre. Valget huskes
 // i denne nettleseren.
@@ -17,7 +17,7 @@ export function setAdminMode(on) {
   } catch { /* uten lagring gjelder valget bare denne siden */ }
 }
 
-// Gruppe eller liste fra get_group/get_list: redigerer som administrator?
+// Perm eller liste fra get_group/get_list: redigerer som administrator?
 export const actsAsAdmin = (item) => Boolean(item?.is_admin) && adminModeOn();
 
 // Kan redigere, enten som eier/redaktør eller i adminmodus.

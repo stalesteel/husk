@@ -1,5 +1,6 @@
-// Redigering av en gruppe: gruppesiden (navn, bilde, beskrivelse), listene
-// i den, QR-kode og sletting. Ser ut som gruppesiden, og lagres fortløpende.
+// Redigering av en perm: forsiden av permen (navn, bilde, beskrivelse), listene
+// i den, QR-kode og sletting. Ser ut som permen, og lagres fortløpende.
+// I koden og databasen heter en perm fortsatt «group».
 
 import { actsAsAdmin, canEdit } from './admin.js';
 import { getUser } from './auth.js';
@@ -32,7 +33,7 @@ function setupText() {
   $('name').value = group.name;
   $('name').addEventListener('input', () => {
     const name = $('name').value.trim();
-    if (!name) return; // en gruppe må ha navn
+    if (!name) return; // en perm må ha navn
     group.name = name;
     later('name', () => updateGroup(group.id, { name: group.name }));
   });
@@ -53,7 +54,7 @@ function setupText() {
 // Bildet
 // ---------------------------------------------------------------------------
 
-// Samme topp som på gruppesiden: bildet, eller en grønn flate uten bilde.
+// Samme topp som i permen: bildet, eller en grønn flate uten bilde.
 function showHero(src) {
   $('hero').hidden = !src;
   $('hero-tools').hidden = !src;
@@ -212,7 +213,7 @@ async function removeEditor(editor) {
 
 // Eieren skriver bare e-postadressen. Serverfunksjonen finner ut om personen
 // har konto (legges til med en gang) eller må inviteres (får e-post, og blir
-// redaktør uten mulighet til å lage egne grupper).
+// redaktør uten mulighet til å lage egne permer).
 function setupEditors() {
   $('new-editor').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -226,8 +227,8 @@ function setupEditors() {
       const { invited } = await invite(email, 'editor', group.id);
       $('new-editor-email').value = '';
       editorMessage(invited
-        ? `Invitasjon sendt til ${email}. Personen kan redigere gruppen når invitasjonen er tatt imot.`
-        : `${email} kan nå redigere. Det sendes ingen e-post, så gi gjerne beskjed – gruppen står på forsiden neste gang personen logger inn.`);
+        ? `Invitasjon sendt til ${email}. Personen kan redigere permen når invitasjonen er tatt imot.`
+        : `${email} kan nå redigere. Det sendes ingen e-post, så gi gjerne beskjed – permen står på forsiden neste gang personen logger inn.`);
       renderEditors();
     } catch (error) {
       editorMessage(error.message, true);
@@ -247,30 +248,30 @@ function setupLeave(user) {
       alert('Kunne ikke fjerne deg. Sjekk nettet og prøv igjen.');
       return;
     }
-    location.assign(`/gruppe/?id=${group.id}`);
+    location.assign(`/perm/?id=${group.id}`);
   });
 }
 
 // ---------------------------------------------------------------------------
-// Sletting av hele gruppen (bare eieren)
+// Sletting av hele permen (bare eieren)
 // ---------------------------------------------------------------------------
 
 function setupDelete() {
-  $('delete-group').addEventListener('click', async () => {
+  $('delete-perm').addEventListener('click', async () => {
     const count = group.lists.length;
     const lists = count ? ` og ${count === 1 ? 'listen i den' : `alle de ${count} listene`}` : '';
-    if (!confirm(`Slette gruppen «${group.name}»${lists}, med alle bilder? Dette kan ikke angres.`)) return;
+    if (!confirm(`Slette permen «${group.name}»${lists}, med alle bilder? Dette kan ikke angres.`)) return;
 
-    $('delete-group').disabled = true;
+    $('delete-perm').disabled = true;
     await settle();
 
-    // Alle bildene ligger i mappen til gruppen, så den tømmes i sin helhet.
+    // Alle bildene ligger i mappen til permen, så den tømmes i sin helhet.
     const { data: files } = await supabase.storage.from('images').list(group.id, { limit: 1000 });
     try {
       await deleteGroup(group.id);
     } catch {
-      $('delete-group').disabled = false;
-      alert('Kunne ikke slette gruppen. Bare eieren kan slette den.');
+      $('delete-perm').disabled = false;
+      alert('Kunne ikke slette permen. Bare eieren kan slette den.');
       return;
     }
     await removeFiles((files ?? []).map((file) => `${group.id}/${file.name}`));
@@ -292,15 +293,15 @@ async function main() {
   try {
     group = await getGroup(groupId);
   } catch {
-    return showMessage('Kunne ikke laste gruppen. Sjekk nettet og prøv igjen.');
+    return showMessage('Kunne ikke laste permen. Sjekk nettet og prøv igjen.');
   }
-  if (!group) return showMessage('Fant ikke denne gruppen. Sjekk at lenken er riktig.');
-  if (!canEdit(group)) return showMessage('Du har ikke tilgang til å redigere denne gruppen.');
+  if (!group) return showMessage('Fant ikke denne permen. Sjekk at lenken er riktig.');
+  if (!canEdit(group)) return showMessage('Du har ikke tilgang til å redigere denne permen.');
 
   document.title = `Rediger ${group.name} – Husk Klommestein`;
-  $('back').href = `/gruppe/?id=${group.id}`;
-  $('done').href = `/gruppe/?id=${group.id}`;
-  $('group-qr').href = `/qr/?gruppe=${group.id}`;
+  $('back').href = `/perm/?id=${group.id}`;
+  $('done').href = `/perm/?id=${group.id}`;
+  $('group-qr').href = `/qr/?perm=${group.id}`;
   for (const link of [$('back'), $('done'), $('group-qr')]) leaveVia(link);
 
   const fitDescription = setupText();
@@ -319,7 +320,7 @@ async function main() {
   $('editors-section').hidden = !fullAccess;
   $('leave-section').hidden = fullAccess || !group.can_edit;
   $('admin-note').hidden = !asAdmin;
-  if (asAdmin) $('editors-intro').textContent = 'Adminmodus: du styrer redaktørene i en annens gruppe.';
+  if (asAdmin) $('editors-intro').textContent = 'Adminmodus: du styrer redaktørene i en annens perm.';
   if (fullAccess) renderEditors();
 
   $('message').hidden = true;
