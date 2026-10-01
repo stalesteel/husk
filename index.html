@@ -182,11 +182,9 @@
     <main class="home-main">
       <section id="guest" class="guest" hidden>
         <p>Har du fått en lenke eller skannet en QR-kode, trenger du ingen konto. Er du invitert til å lage eller redigere sjekklister, logger du inn her.</p>
-        <div id="signup" hidden>
-          <p>Akkurat nå kan du også lage din egen bruker, og lage permer med sjekklister for hytta, båten eller hva du vil.</p>
-          <a class="button" href="/logg-inn/?ny">Lag bruker</a>
-        </div>
-        <a id="sign-in" class="button" href="/logg-inn/">Logg inn</a>
+        <p id="signup-text" hidden>Akkurat nå kan du også lage din egen bruker, og lage permer med sjekklister for hytta, båten eller hva du vil.</p>
+        <a class="button" href="/logg-inn/">Logg inn</a>
+        <a id="signup" class="button secondary" href="/logg-inn/?ny" hidden>Lag bruker</a>
         <a class="button secondary" href="/om/">Les mer om Husk Klommestein</a>
         <a class="film-card" href="/film/">
           <img src="/film/plakat.jpg" alt="">
@@ -319,10 +317,10 @@
       });
     } else {
       $('guest').hidden = false;
-      // Er selvregistreringen åpen, blir «Lag bruker» hovedknappen.
+      // Er selvregistreringen åpen, kommer «Lag bruker» under «Logg inn».
       if ((await getSignupStatus()).open) {
+        $('signup-text').hidden = false;
         $('signup').hidden = false;
-        $('sign-in').classList.add('secondary');
       }
     }
   </script>
