@@ -35,7 +35,21 @@
   .signup-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
   .signup-fields label { margin: 0; font-size: 0.9375rem; }
   .signup-fields label.wide { grid-column: 1 / -1; }
-  .signup-fields .text-input { margin-top: 4px; }
+  /* Dato- og tallfelt har egne høyder og minstebredder i nettleserne (særlig
+     iPhone). Fast høyde og min-width: 0, så de blir like og holder seg i
+     kolonnen sin. */
+  .signup-fields .text-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 52px;
+    margin-top: 4px;
+    padding-top: 0;
+    padding-bottom: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .signup-fields input[type="date"]::-webkit-date-and-time-value { text-align: left; }
   .share { margin-top: 16px; }
   .share code { display: block; margin: 4px 0 0; padding: 10px 12px; border-radius: 10px;
     background: var(--surface); border: 1px solid var(--border); overflow-wrap: anywhere; font-size: 0.9375rem; }

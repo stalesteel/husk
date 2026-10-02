@@ -125,13 +125,37 @@
   cursor: pointer;
 }
 
+/* Listene i redigeringen ser ut som de grønne knappene i permen, med
+   verktøyene inni kortet. */
 .list-row {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
+  margin-top: 10px;
+  padding: 12px 14px 14px 12px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: var(--accent-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(31, 111, 74, 0.18);
 }
-.list-row:first-child { border-top: 1px solid var(--border); margin-top: 12px; }
 
-.list-row-title { font-weight: 600; font-size: 1.0625rem; }
+.list-row-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  overflow-wrap: anywhere;
+}
+
+.list-row .row-tools { gap: 6px; margin-top: 12px; }
+.list-row .row-tools > * {
+  min-width: 38px;
+  padding: 8px 11px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
+  font-weight: 600;
+}
+.list-row .row-tools > :first-child { background: var(--surface); color: var(--accent); }
+.list-row .row-tools .danger { background: rgba(0, 0, 0, 0.22); color: inherit; }
 
 .row-tools {
   display: flex;
@@ -359,6 +383,20 @@
   bottom: 36px;
   right: 12px;
 }
+/* QR-koden for permen: nede til venstre på bildet (eller den grønne flaten),
+   over kanten der arket begynner. */
+.gp .hero-qr {
+  position: absolute;
+  left: 12px;
+  bottom: 36px;
+  z-index: 2;
+}
+
+/* Uten bilde trengs litt mer høyde i redigeringen, så «Legg til bilde» og
+   QR-knappen ikke kolliderer. */
+.editing-group .gp-hero.no-image { height: calc(env(safe-area-inset-top) + 200px); }
+.editing-group .gp-hero.no-image .hero-empty { padding: 40px 0 72px; }
+
 .gp .name-field { margin-bottom: 12px; }
 .gp .gp-section-title { font-size: 0.8125rem; margin: 32px 0 4px; }
 .gp .lists { margin-top: 0; }

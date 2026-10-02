@@ -9,7 +9,7 @@ import {
   getGroupOwner, imageUrl, insertStep, invite, listImagePaths, removeFiles, removeGroupEditor,
   saveOrder, updateGroup, uploadImage,
 } from './data.js';
-import { el } from './dom.js';
+import { checkIcon, el } from './dom.js';
 import { prepareImage } from './images.js';
 import { later, leaveVia, save, settle, showStatusIn } from './saving.js';
 import { supabase } from './supabase.js';
@@ -120,7 +120,7 @@ function renderLists() {
     leaveVia(editLink);
     leaveVia(qrLink);
     return el('div', { class: 'list-row' },
-      el('div', { class: 'list-row-title' }, list.title),
+      el('div', { class: 'list-row-title' }, checkIcon(), list.title),
       el('div', { class: 'row-tools' },
         editLink,
         qrLink,
