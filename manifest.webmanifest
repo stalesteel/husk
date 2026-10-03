@@ -1,0 +1,16 @@
+{
+  "name": "Husk Klommestein",
+  "short_name": "Husk",
+  "description": "Sjekklister med bilder.",
+  "lang": "no",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#f7f7f5",
+  "theme_color": "#1f6f4a",
+  "icons": [
+    { "src": "/ikon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/ikon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/ikon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
