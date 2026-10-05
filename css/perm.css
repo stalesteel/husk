@@ -383,13 +383,15 @@
   bottom: 36px;
   right: 12px;
 }
-/* QR-koden for permen: nede til venstre på bildet (eller den grønne flaten),
-   over kanten der arket begynner. */
-.gp .hero-qr {
+/* QR-kode og plakat for permen: nede til venstre på bildet (eller den grønne
+   flaten), over kanten der arket begynner. */
+.gp .hero-links {
   position: absolute;
   left: 12px;
   bottom: 36px;
   z-index: 2;
+  display: flex;
+  gap: 8px;
 }
 
 /* Uten bilde trengs litt mer høyde i redigeringen, så «Legg til bilde» og
@@ -400,3 +402,9 @@
 .gp .name-field { margin-bottom: 12px; }
 .gp .gp-section-title { font-size: 0.8125rem; margin: 32px 0 4px; }
 .gp .lists { margin-top: 0; }
+
+/* Smale telefoner: knappene på bildet blir litt mindre, så de ikke kolliderer. */
+@media (max-width: 400px) {
+  .gp .hero-links .pill,
+  .gp .hero-tools .tool { padding: 0 11px; font-size: 0.875rem; }
+}

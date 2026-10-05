@@ -302,7 +302,8 @@ async function main() {
   $('back').href = `/perm/?id=${group.id}`;
   $('done').href = `/perm/?id=${group.id}`;
   $('group-qr').href = `/qr/?perm=${group.id}`;
-  for (const link of [$('back'), $('done'), $('group-qr')]) leaveVia(link);
+  $('poster').href = `/plakat/?perm=${group.id}`;
+  for (const link of [$('back'), $('done'), $('group-qr'), $('poster')]) leaveVia(link);
 
   const fitDescription = setupText();
   setupImage();

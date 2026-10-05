@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Plakat – Husk Klommestein</title>
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/plakat.css">
+</head>
+<body>
+  <main class="pl">
+    <nav class="pl-top">
+      <a id="back" href="/">‹ Tilbake</a>
+      <h1>Plakat</h1>
+    </nav>
+    <p id="message" class="muted pl-message">Et øyeblikk …</p>
+
+    <div id="content" hidden>
+      <div id="picker"></div>
+      <div class="pl-design" aria-live="polite">
+        <strong id="design-name"></strong>
+        <span id="design-count"></span>
+      </div>
+      <p id="warn" class="pl-warn" hidden></p>
+
+      <section class="pl-options">
+        <h2>Innhold</h2>
+        <div class="chips" id="show">
+          <label class="chip"><input type="checkbox" value="title" checked><span>Overskrift</span></label>
+          <label class="chip"><input type="checkbox" value="image" checked><span>Bilde</span></label>
+          <label class="chip"><input type="checkbox" value="text" checked><span>Tekst</span></label>
+          <label class="chip"><input type="checkbox" value="lists" checked><span>Listene</span></label>
+          <label class="chip"><input type="checkbox" value="permQr" checked><span>QR for hele permen</span></label>
+        </div>
+
+        <h2>Størrelse</h2>
+        <div class="sizes" id="sizes"></div>
+
+        <button id="pdf" class="button" type="button">Last ned PDF</button>
+        <p class="pl-note">Skrives ut på A4. Mindre størrelser kommer flere på samme ark, klare til å klippes.</p>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/js/plakat-side.js"></script>
+</body>
+</html>

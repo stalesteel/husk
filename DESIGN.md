@@ -188,6 +188,31 @@ Arbeidsflyten er:
 4. «Neste steg»
 5. Samme grensesnitt brukes når en eksisterende liste redigeres senere
 
+## Plakat og QR-merker
+
+Fra redigeringen av en perm kan eieren ta ut en **plakat som PDF** (`/plakat/?perm=…`), og
+for permen og hver liste et **QR-merke** på 7 × 9 cm (`/qr/?perm=…`, `/qr/?liste=…`).
+Brukeren velger blant **32 ferdige design** ved å sveipe – aldri skrift eller farger selv.
+Designene er felles for plakat og QR-merke, og står i `js/plakat-motor.js`:
+
+- **Hvitt papir** (6): skrivervennlige, med farge i detaljene.
+- **Fylt farge** (6): hele arket i en lys farge (og én mørk).
+- **Bilde som bakgrunn** (18): permens bilde med filter (sepia, sort-hvitt, blå- og
+  grønntone) og ulike komposisjoner – tonet ut fra en side, bånd, panel, passepartout.
+- **Store QR-koder** (2): enkle, for når skanning er hovedsaken.
+
+Plakaten tegnes på et canvas med samme kode for forhåndsvisning og PDF, så man får det
+man ser. Fotofiltrene regnes ut piksel for piksel, fordi `ctx.filter` ikke virker i Safari.
+
+**QR-kodene skal ikke dominere.** Listenes koder er små med luft mellom, og koden for
+hele permen er et lite kort i bunnlinjen («Hele permen») – gjesten leser jo permen på
+plakaten. Får ikke alt plass, krymper først bildet, så teksten og QR-kodene (aldri under
+lesbar størrelse); lister som likevel ikke får plass, varsles.
+
+**Størrelser:** A4 (standard), A5 (2 per A4-ark) og A6 (4 per A4-ark), med stiplede
+linjer å klippe etter. Det er samme oppsett skrevet ut mindre, men QR-kodene tegnes
+større på små ark, så de alltid er minst ca. 14 mm.
+
 ## Tilbakenavigasjon
 
 Kommer brukeren fra et annet nettsted, bør en tilbakeknapp føre dit igjen. Kommer man fra

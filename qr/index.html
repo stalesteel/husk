@@ -9,55 +9,47 @@
 <meta name="robots" content="noindex, nofollow">
 <title>QR-kode – Husk Klommestein</title>
 <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/plakat.css">
 <style>
-  .qr-page {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 32px);
-  }
-  .qr-page > p:first-child a { font-weight: 600; text-decoration: none; }
+  .qr-track .dp-track { --slide-w: min(62vw, 280px); }
+  .qr-actions { max-width: 560px; margin: 18px auto 0; padding: 0 16px; }
+  .qr-actions .button + .button { margin-top: 12px; }
+  .url { margin-top: 18px; font-size: 0.875rem; word-break: break-all; text-align: center; }
+  #print-sheet { display: none; }
 
-  /* Etiketten er alltid sort på hvitt, uansett mørk modus, så den kan skannes og skrives ut. */
-  .qr-label {
-    margin: 16px 0 24px;
-    padding: 24px;
-    border-radius: 16px;
-    background: #ffffff;
-    color: #111111;
-    text-align: center;
-  }
-  .qr-label h1 { font-size: 1.75rem; margin: 0 0 12px; }
-  .qr-label svg { display: block; width: 100%; height: auto; }
-  .qr-label p { margin: 12px 0 0; color: #555555; }
-
-  .qr-page .button + .button { margin-top: 12px; }
-  .url { margin-top: 20px; font-size: 0.875rem; word-break: break-all; }
-
+  /* Utskrift: bare merket, i riktig størrelse (7 × 9 cm). */
   @media print {
+    @page { margin: 12mm; }
     body { background: #ffffff; }
-    .no-print { display: none !important; }
-    .qr-page { padding: 0; }
-    .qr-label { margin: 0; padding: 0; }
+    .pl { display: none; }
+    #print-sheet { display: block; }
+    #print-sheet img { display: block; width: 70mm; height: 90mm; }
   }
 </style>
 </head>
 <body>
-  <main class="qr-page">
-    <p class="no-print"><a id="back" href="/">‹ Tilbake</a></p>
-    <p id="message" class="muted">Et øyeblikk …</p>
+  <main class="pl">
+    <nav class="pl-top">
+      <a id="back" href="/">‹ Tilbake</a>
+      <h1>QR-kode</h1>
+    </nav>
+    <p id="message" class="muted pl-message">Et øyeblikk …</p>
+
     <div id="content" hidden>
-      <div class="qr-label">
-        <h1 id="name"></h1>
-        <div id="code"></div>
-        <p id="caption"></p>
+      <div id="picker" class="qr-track"></div>
+      <div class="pl-design" aria-live="polite">
+        <strong id="design-name"></strong>
+        <span id="design-count"></span>
       </div>
-      <div class="no-print">
+      <div class="qr-actions">
         <button id="print" class="button" type="button">Skriv ut</button>
         <button id="download" class="button secondary" type="button">Last ned som bilde</button>
+        <p class="pl-note">Merket er 7 × 9 cm når det skrives ut.</p>
         <p id="url" class="url muted"></p>
       </div>
     </div>
   </main>
+  <div id="print-sheet"><img id="print-img" alt=""></div>
   <script type="module" src="/js/qr.js"></script>
 </body>
 </html>
