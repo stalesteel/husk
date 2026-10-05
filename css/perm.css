@@ -426,7 +426,27 @@
 .log-list { margin-top: 8px; text-align: left; }
 .log-entry { padding: 12px 0; border-top: 1px solid var(--border); }
 .log-entry:last-of-type { border-bottom: 1px solid var(--border); }
+.log-entry-head {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
 .log-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.log-meta { display: flex; justify-content: space-between; gap: 12px; }
+.log-chevron { flex: none; font-size: 1.25rem; line-height: 1; transition: transform 0.15s; }
+.log-entry-head[aria-expanded="true"] .log-chevron { transform: rotate(90deg); }
+.log-details { margin-top: 8px; }
+.log-steps { margin: 0; padding: 0; list-style: none; }
+.log-steps li { display: flex; gap: 8px; padding: 3px 0; font-size: 0.9375rem; }
+.log-mark { flex: none; width: 1.2em; font-weight: 800; }
+.log-steps li.done .log-mark { color: var(--accent); }
+.log-steps li.missing { color: var(--error); }
 .log-head strong { overflow-wrap: anywhere; }
 .log-count { flex: none; color: var(--error); font-size: 0.875rem; font-weight: 700; }
 .log-count.ok { color: var(--accent); }

@@ -137,8 +137,11 @@ Deno.serve(async (req) => {
   const sent = results.filter(Boolean).length;
   if (!sent) return fail(502, 'send_failed', 'Kunne ikke sende bekreftelsen. Prøv igjen om litt.');
 
+  // Loggen tar vare på stegene slik de var nå, så eiere og redaktører kan se
+  // hvilke som ble krysset av (også om listen endres senere).
   await admin.from('confirmations').insert({
     list_id: list.id, name: name || null, comment: comment || null, done, total: all.length, recipients: sent,
+    steps: all.map((s) => ({ title: s.title || 'Uten tittel', done: checked.has(s.id) })),
   });
   return reply(200, { ok: true, sent });
 });

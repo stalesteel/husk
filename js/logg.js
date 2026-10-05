@@ -1,6 +1,8 @@
 // Loggen over bekreftelser for listene i en perm. Vises nederst i permen,
 // bare for dem som kan redigere (tilgangsreglene i databasen gir heller ikke
-// andre noe). Egen fil, så en eldre data.js i hurtigminnet ikke stopper siden.
+// andre noe). Et trykk på en bekreftelse viser stegene og om de ble krysset
+// av, som i e-posten. Egen fil, så en eldre data.js i hurtigminnet ikke
+// stopper siden.
 
 import { el } from './dom.js';
 import { supabase } from './supabase.js';
@@ -40,7 +42,7 @@ async function render(container, perm) {
     return;
   }
   const { data, error } = await supabase.from('confirmations')
-    .select('id, list_id, created_at, name, comment, done, total')
+    .select('id, list_id, created_at, name, comment, done, total, steps')
     .in('list_id', [...titles.keys()])
     .order('created_at', { ascending: false })
     .limit(LIMIT);
@@ -54,13 +56,29 @@ async function render(container, perm) {
     return;
   }
 
-  const rows = data.map((row) => el('div', { class: 'log-entry' },
-    el('div', { class: 'log-head' },
-      el('strong', {}, titles.get(row.list_id) ?? 'Slettet liste'),
-      el('span', { class: row.done === row.total ? 'log-count ok' : 'log-count' },
-        row.done === row.total ? `✓ ${row.done} av ${row.total}` : `${row.done} av ${row.total}`)),
-    el('div', { class: 'log-meta' }, `${row.name || 'En gjest'} · ${when.format(new Date(row.created_at))}`),
-    row.comment ? el('p', { class: 'log-comment' }, row.comment) : null));
+  const rows = data.map((row) => {
+    // Detaljene: stegene med ✓ og ✗, og kommentaren.
+    const details = el('div', { class: 'log-details', hidden: true },
+      row.steps?.length
+        ? el('ol', { class: 'log-steps' }, row.steps.map((step, i) => el('li', { class: step.done ? 'done' : 'missing' },
+            el('span', { class: 'log-mark', 'aria-label': step.done ? 'Krysset av' : 'Ikke krysset av' }, step.done ? '✓' : '✗'),
+            `${i + 1}. ${step.title}`)))
+        : el('p', { class: 'log-empty' }, 'Stegene ble ikke lagret for denne bekreftelsen (sendt før loggen fikk dem).'));
+    const head = el('button', { class: 'log-entry-head', type: 'button', 'aria-expanded': 'false' },
+      el('span', { class: 'log-head' },
+        el('strong', {}, titles.get(row.list_id) ?? 'Slettet liste'),
+        el('span', { class: row.done === row.total ? 'log-count ok' : 'log-count' },
+          row.done === row.total ? `✓ ${row.done} av ${row.total}` : `${row.done} av ${row.total}`)),
+      el('span', { class: 'log-meta' }, `${row.name || 'En gjest'} · ${when.format(new Date(row.created_at))}`,
+        el('span', { class: 'log-chevron', 'aria-hidden': 'true' }, '›')));
+    head.addEventListener('click', () => {
+      details.hidden = !details.hidden;
+      head.setAttribute('aria-expanded', String(!details.hidden));
+    });
+    return el('div', { class: 'log-entry' }, head,
+      row.comment ? el('p', { class: 'log-comment' }, row.comment) : null,
+      details);
+  });
   if (data.length === LIMIT) rows.push(el('p', { class: 'log-empty' }, `Viser de ${LIMIT} siste.`));
   container.replaceChildren(...rows);
 }
