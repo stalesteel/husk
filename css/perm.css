@@ -408,3 +408,28 @@
   .gp .hero-links .pill,
   .gp .hero-tools .tool { padding: 0 11px; font-size: 0.875rem; }
 }
+
+/* Loggen over bekreftelser: en diskret lenke nederst i permen, bare for
+   eiere og redaktører. */
+.log { margin-top: 40px; text-align: center; }
+.log-link {
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.log-list { margin-top: 8px; text-align: left; }
+.log-entry { padding: 12px 0; border-top: 1px solid var(--border); }
+.log-entry:last-of-type { border-bottom: 1px solid var(--border); }
+.log-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.log-head strong { overflow-wrap: anywhere; }
+.log-count { flex: none; color: var(--error); font-size: 0.875rem; font-weight: 700; }
+.log-count.ok { color: var(--accent); }
+.log-meta { color: var(--muted); font-size: 0.875rem; }
+.log-comment { margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--accent-soft); white-space: pre-line; font-size: 0.9375rem; }
+.log-empty { margin: 8px 0; color: var(--muted); font-size: 0.875rem; text-align: center; }
