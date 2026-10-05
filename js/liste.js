@@ -1,5 +1,6 @@
 import { getList, imageUrl } from './data.js';
 import { canEdit } from './admin.js';
+import { confirmForm } from './bekreftelse.js';
 import { imageArrows } from './bildepiler.js';
 import { el } from './dom.js';
 
@@ -10,6 +11,8 @@ let list;
 // Per steg: avkrysset, hvilke bilder som er sett, og elementene som oppdateres.
 const steps = [];
 let summaryEl;
+// Skjemaet for bekreftelse på e-post, når det er slått på for listen.
+let confirmation = null;
 
 function showMessage(text) {
   $('message').textContent = text;
@@ -128,6 +131,8 @@ function updateSummary() {
 
   const back = el('a', { class: 'check secondary', href: `/perm/?id=${list.group.id}` },
     `Tilbake til ${list.group.name}`);
+  confirmation?.update(remaining.length);
+  const confirmBox = confirmation ? confirmation.box : null;
 
   if (total === 0) {
     summaryEl.replaceChildren(el('h2', {}, 'Tom liste'), el('p', {}, 'Listen har ingen punkter ennå.'), back);
@@ -135,6 +140,7 @@ function updateSummary() {
     summaryEl.replaceChildren(
       el('h2', {}, 'Alt klart!'),
       el('p', {}, total === 1 ? 'Punktet er krysset av.' : `Alle ${total} punktene er krysset av.`),
+      confirmBox,
       back);
   } else {
     summaryEl.replaceChildren(
@@ -145,6 +151,7 @@ function updateSummary() {
         type: 'button',
         onclick: () => scrollToSection(index),
       }, `${index + 1}. ${stepTitle(step)}`)),
+      confirmBox,
       back);
   }
 }
@@ -217,6 +224,9 @@ if (list) {
 
   stepsEl.append(...list.steps.map(renderStep));
   summaryEl = el('section', { class: 'summary', 'aria-label': 'Oppsummering' });
+  if (list.confirm?.enabled && list.steps.length) {
+    confirmation = confirmForm(list, () => list.steps.filter((_, i) => steps[i].checked).map((step) => step.id));
+  }
   stepsEl.append(summaryEl);
   updateSummary();
 

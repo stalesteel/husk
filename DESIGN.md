@@ -188,6 +188,25 @@ Arbeidsflyten er:
 4. «Neste steg»
 5. Samme grensesnitt brukes når en eksisterende liste redigeres senere
 
+## Bekreftelse på e-post
+
+Per liste kan eieren eller en redaktør slå på at gjesten kan sende en **bekreftelse på
+e-post** når listen er gått gjennom (av som standard). Valgene ligger øverst i
+redigeringen, under «Listen»:
+
+- **Mottakere:** eieren (standard) og/eller valgte redaktører.
+- **Krev at alle punktene er krysset av:** ikke alltid mulig, så det er et valg.
+- **Krev navn:** gjesten har alltid et navnefelt; med dette må det fylles ut.
+- **Kommentar:** gjesten kan skrive fritekst som følger med.
+- **Punktene med status** i e-posten.
+
+Gjesten trykker selv «Send bekreftelse» på oppsummeringen – det sendes aldri noe av seg
+selv, for eksempel når noen bare blar gjennom listen. E-posten sendes av Edge
+Function-en `bekreft` via Resend; mottakernes adresser slås opp der og sendes aldri til
+nettleseren. Alle med lenken kan trykke på knappen, så det er en sperre: minst ett
+minutt mellom to bekreftelser og høyst 20 per liste per døgn. Hver bekreftelse logges
+(tabellen `confirmations`), så «sist gjennomført» kan vises senere.
+
 ## Plakat og QR-merker
 
 Fra redigeringen av en perm kan eieren ta ut en **plakat som PDF** (`/plakat/?perm=…`), og

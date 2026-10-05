@@ -8,6 +8,7 @@ import {
   deleteImage, deleteStep, getList, imageUrl, insertImage, insertStep,
   removeFiles, saveOrder, updateImage, updateList, updateStep, uploadImage,
 } from './data.js';
+import { getConfirmCandidates } from './bekreftelse.js';
 import { imageArrows } from './bildepiler.js';
 import { el } from './dom.js';
 import { prepareImage } from './images.js';
@@ -24,6 +25,8 @@ let list;
 // står derfor på side i + 1. current er siden som vises.
 let current = 0;
 const pageOf = (stepIndex) => stepIndex + 1;
+// Eieren og redaktørene som kan få bekreftelse på e-post (hentes i main).
+let candidates = [];
 
 showStatusIn($('save-status'));
 
@@ -236,8 +239,68 @@ function renderSettings() {
       el('span', {},
         'Krev at alle bildene er sett før avkryssing',
         el('small', {}, 'Nyttig for lister andre skal følge. Gjelder steg med flere bilder.'))),
+    renderConfirmSettings(),
     toSteps,
     view);
+}
+
+// Bekreftelse på e-post: av som standard. Slås den på, kommer valgene for
+// mottakere og hva gjesten må gjøre.
+function renderConfirmSettings() {
+  const c = list.confirm ??= { enabled: false, require_all: false, comment: false, require_name: false };
+  const cs = list.confirm_settings ??= { to_owner: true, editors: [], include_steps: true };
+
+  const toggle = (checked, text, help, onchange) => {
+    const box = el('input', { type: 'checkbox', checked });
+    box.addEventListener('change', () => onchange(box.checked));
+    return el('label', { class: 'setting toggle' }, box, el('span', {}, text, help ? el('small', {}, help) : null));
+  };
+  const warn = el('p', { class: 'settings-warn', hidden: true }, 'Velg minst én mottaker, ellers kan ikke bekreftelsen sendes.');
+  const checkRecipients = () => { warn.hidden = !(c.enabled && !cs.to_owner && !cs.editors.length); };
+
+  const recipients = candidates.map((person) => toggle(
+    person.is_owner ? cs.to_owner : cs.editors.includes(person.user_id),
+    person.email,
+    person.is_owner ? 'Eier' : 'Redaktør',
+    (on) => {
+      if (person.is_owner) {
+        cs.to_owner = on;
+        save(updateList(list.id, { confirm_to_owner: on }));
+      } else {
+        cs.editors = on ? [...new Set([...cs.editors, person.user_id])] : cs.editors.filter((id) => id !== person.user_id);
+        save(updateList(list.id, { confirm_editors: cs.editors }));
+      }
+      checkRecipients();
+    }));
+
+  const options = el('div', { class: 'settings-group', hidden: !c.enabled },
+    el('p', { class: 'setting' }, 'Hvem får e-posten'),
+    ...recipients,
+    warn,
+    el('p', { class: 'setting' }, 'Gjesten'),
+    toggle(c.require_all, 'Krev at alle punktene er krysset av',
+      'Slå av hvis ikke alle punktene alltid kan gjøres.',
+      (on) => { c.require_all = on; save(updateList(list.id, { confirm_require_all: on })); }),
+    toggle(c.require_name, 'Krev navn',
+      'Gjesten får alltid et felt for navnet. Med dette må det fylles ut.',
+      (on) => { c.require_name = on; save(updateList(list.id, { confirm_require_name: on })); }),
+    toggle(c.comment, 'Gjesten kan skrive en kommentar', null,
+      (on) => { c.comment = on; save(updateList(list.id, { confirm_comment: on })); }),
+    el('p', { class: 'setting' }, 'E-posten'),
+    toggle(cs.include_steps, 'Ta med punktene og hvilke som er krysset av', null,
+      (on) => { cs.include_steps = on; save(updateList(list.id, { confirm_include_steps: on })); }));
+
+  const main = toggle(c.enabled, 'Send bekreftelse på e-post når listen er gjennomført',
+    'Gjesten får en knapp på oppsummeringen til slutt.',
+    (on) => {
+      c.enabled = on;
+      options.hidden = !on;
+      checkRecipients();
+      save(updateList(list.id, { confirm_enabled: on }));
+    });
+  checkRecipients();
+
+  return el('div', { class: 'settings-confirm' }, el('h3', {}, 'Bekreftelse'), main, options);
 }
 
 function scrollToPage(page) {
@@ -445,6 +508,7 @@ async function main() {
   if (!list) return showMessage('Fant ikke denne listen. Sjekk at lenken er riktig.');
   if (!canEdit(list)) return showMessage('Du har ikke tilgang til å redigere denne listen.');
 
+  candidates = await getConfirmCandidates(list.id).catch(() => []);
   document.title = `Rediger ${list.title} – Husk Klommestein`;
   $('list-title').textContent = list.title;
   $('back').href = `/perm/?id=${list.group.id}`;

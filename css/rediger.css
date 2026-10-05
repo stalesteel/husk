@@ -223,3 +223,11 @@ body.viewer.writing {
 }
 .settings .toggle input { width: 24px; height: 24px; margin: 2px 0 0; flex: none; accent-color: var(--v-done); }
 .settings .toggle small { display: block; color: var(--v-muted); font-size: 0.9375rem; }
+
+/* Bekreftelse på e-post, på innstillingssiden */
+.settings-confirm { margin: 28px 0 24px; padding-top: 20px; border-top: 1px solid #333; }
+.settings-confirm h3 { margin: 0 0 12px; font-size: 1.25rem; }
+.settings-confirm .settings-group { margin: 6px 0 0 36px; }
+.settings-confirm p.setting { margin: 18px 0 8px; color: var(--v-muted); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.settings-confirm label.setting.toggle { margin-bottom: 12px; overflow-wrap: anywhere; }
+.settings .settings-warn { margin: 0 0 8px; color: var(--v-remaining); }
