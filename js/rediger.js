@@ -247,7 +247,7 @@ function renderSettings() {
 // Bekreftelse på e-post: av som standard. Slås den på, kommer valgene for
 // mottakere og hva gjesten må gjøre.
 function renderConfirmSettings() {
-  const c = list.confirm ??= { enabled: false, require_all: false, comment: false, require_name: false };
+  const c = list.confirm ??= { enabled: false, require_all: false, comment: false, photos: false, require_name: false };
   const cs = list.confirm_settings ??= { to_owner: true, editors: [], include_steps: true };
 
   const toggle = (checked, text, help, onchange) => {
@@ -286,6 +286,9 @@ function renderConfirmSettings() {
       (on) => { c.require_name = on; save(updateList(list.id, { confirm_require_name: on })); }),
     toggle(c.comment, 'Gjesten kan skrive en kommentar', null,
       (on) => { c.comment = on; save(updateList(list.id, { confirm_comment: on })); }),
+    toggle(c.photos, 'Gjesten kan legge ved bilder',
+      'Opptil fire, f.eks. av innholdet i kjøleskapet. Bildene legges ved e-posten og kan åpnes fra loggen.',
+      (on) => { c.photos = on; save(updateList(list.id, { confirm_photos: on })); }),
     el('p', { class: 'setting' }, 'E-posten'),
     toggle(cs.include_steps, 'Ta med punktene og hvilke som er krysset av', null,
       (on) => { cs.include_steps = on; save(updateList(list.id, { confirm_include_steps: on })); }));

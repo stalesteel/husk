@@ -199,13 +199,18 @@ redigeringen, under «Listen»:
 - **Krev navn:** gjesten har alltid et navnefelt; med dette må det fylles ut.
 - **Kommentar:** gjesten kan skrive fritekst som følger med.
 - **Punktene med status** i e-posten.
+- **Bilder:** gjesten kan legge ved opptil fire bilder (f.eks. av innholdet i kjøleskapet).
+  De legges ved e-posten og lagres i en egen, lukket bucket (`bekreftelser`) som bare
+  de som kan redigere permen, har tilgang til.
 
 Gjesten trykker selv «Send bekreftelse» på oppsummeringen – det sendes aldri noe av seg
 selv, for eksempel når noen bare blar gjennom listen. E-posten sendes av Edge
 Function-en `bekreft` via Resend; mottakernes adresser slås opp der og sendes aldri til
 nettleseren. Alle med lenken kan trykke på knappen, så det er en sperre: minst ett
 minutt mellom to bekreftelser og høyst 20 per liste per døgn. Hver bekreftelse logges
-(tabellen `confirmations`), så «sist gjennomført» kan vises senere.
+(tabellen `confirmations`) med stegene slik de var, kommentaren og bildene. Loggen står
+som en diskret lenke nederst i permen, bare for eiere og redaktører; et trykk på en
+bekreftelse viser stegene med ✓ og ✗ og bildene.
 
 ## Plakat og QR-merker
 

@@ -275,6 +275,14 @@ function setupDelete() {
       return;
     }
     await removeFiles((files ?? []).map((file) => `${group.id}/${file.name}`));
+    // Bildene i bekreftelsene (én mappe per bekreftelse). Feiler det, blir de
+    // bare liggende.
+    const bucket = supabase.storage.from('bekreftelser');
+    const { data: folders } = await bucket.list(group.id, { limit: 1000 });
+    for (const folder of folders ?? []) {
+      const { data: photos } = await bucket.list(`${group.id}/${folder.name}`);
+      if (photos?.length) await bucket.remove(photos.map((photo) => `${group.id}/${folder.name}/${photo.name}`));
+    }
     location.assign('/');
   });
 }

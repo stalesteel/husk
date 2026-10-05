@@ -2,7 +2,10 @@
 // gjennom en liste (se supabase/migrations/…_bekreftelse.sql).
 //
 // Kalles fra oppsummeringen i sjekklisten, uten innlogging:
-//   { list_id, checked: [steg-id, …], name, comment }
+//   { list_id, checked: [steg-id, …], name, comment, photos: [base64-JPEG, …] }
+//
+// Bilder (opptil 4) tas bare imot når det er slått på for listen. De lagres i
+// den lukkede bucketen «bekreftelser» og legges ved e-posten.
 //
 // Funksjonen sjekker innstillingene på listen (er det slått på, må alle punkter
 // være krysset av, må navnet fylles ut), sperrer for mange bekreftelser på kort
@@ -18,6 +21,8 @@ const SITE = 'https://husk.klommestein.no';
 const FROM = 'Husk Klommestein <stale@klommestein.no>';
 const PER_DAY = 20;         // bekreftelser per liste per døgn
 const MIN_GAP_MS = 60_000;  // minst ett minutt mellom to bekreftelser
+const MAX_PHOTOS = 4;
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -29,6 +34,13 @@ const reply = (status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 
 const fail = (status: number, error: string, message: string) => reply(status, { error, message });
+
+// Base64 i biter, så store bilder ikke sprenger kallstakken.
+function toBase64(bytes: Uint8Array) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+}
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -43,7 +55,7 @@ Deno.serve(async (req) => {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  let body: { list_id?: string; checked?: unknown; name?: string; comment?: string };
+  let body: { list_id?: string; checked?: unknown; name?: string; comment?: string; photos?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -52,7 +64,7 @@ Deno.serve(async (req) => {
 
   // Listen og innstillingene
   const { data: list } = await admin.from('lists')
-    .select('id, title, group_id, confirm_enabled, confirm_to_owner, confirm_editors, confirm_require_all, confirm_include_steps, confirm_comment, confirm_require_name, groups(name, owner_id)')
+    .select('id, title, group_id, confirm_enabled, confirm_to_owner, confirm_editors, confirm_require_all, confirm_include_steps, confirm_comment, confirm_photos, confirm_require_name, groups(name, owner_id)')
     .eq('id', body.list_id ?? '')
     .maybeSingle();
   if (!list) return fail(404, 'no_list', 'Fant ikke listen.');
@@ -73,6 +85,23 @@ Deno.serve(async (req) => {
   const name = String(body.name ?? '').trim().slice(0, 80);
   if (list.confirm_require_name && !name) return fail(400, 'no_name', 'Skriv navnet ditt.');
   const comment = list.confirm_comment ? String(body.comment ?? '').trim().slice(0, 2000) : '';
+
+  // Bildene: base64-JPEG fra nettleseren (allerede krympet der).
+  const photos: Uint8Array[] = [];
+  if (list.confirm_photos && Array.isArray(body.photos)) {
+    for (const item of body.photos.slice(0, MAX_PHOTOS)) {
+      const b64 = String(item).replace(/^data:image\/\w+;base64,/, '');
+      let bytes: Uint8Array;
+      try {
+        bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      } catch {
+        return fail(400, 'bad_photo', 'Et av bildene kunne ikke leses.');
+      }
+      if (bytes.length > MAX_PHOTO_BYTES) return fail(400, 'big_photo', 'Et av bildene er for stort.');
+      if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return fail(400, 'bad_photo', 'Bildene må være JPEG.');
+      photos.push(bytes);
+    }
+  }
 
   // Sperre: ikke for ofte, og ikke for mange per døgn.
   const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
@@ -100,6 +129,21 @@ Deno.serve(async (req) => {
   }
   if (!emails.length) return fail(400, 'no_recipients', 'Listen har ingen mottakere for bekreftelsen.');
 
+  // Bildene lagres før e-posten sendes, under en ny id for bekreftelsen.
+  const id = crypto.randomUUID();
+  const photoPaths: string[] = [];
+  for (const [i, bytes] of photos.entries()) {
+    const path = `${list.group_id}/${id}/${i + 1}.jpg`;
+    const { error } = await admin.storage.from('bekreftelser').upload(path, bytes, { contentType: 'image/jpeg' });
+    if (error) {
+      console.error(error);
+      if (photoPaths.length) await admin.storage.from('bekreftelser').remove(photoPaths);
+      return fail(502, 'upload_failed', 'Kunne ikke lagre bildene. Prøv igjen om litt.');
+    }
+    photoPaths.push(path);
+  }
+  const attachments = photos.map((bytes, i) => ({ filename: `bilde-${i + 1}.jpg`, content: toBase64(bytes) }));
+
   // E-posten
   const allDone = done === all.length;
   const when = new Intl.DateTimeFormat('nb-NO', { timeZone: 'Europe/Oslo', dateStyle: 'full', timeStyle: 'short' }).format(new Date());
@@ -120,26 +164,32 @@ Deno.serve(async (req) => {
     <p style="color:#6b6b6b;margin:0 0 16px">${esc(when)}</p>
     ${comment ? `<blockquote style="margin:16px 0;padding:10px 14px;border-left:4px solid #1f6f4a;background:#f3f7f4;font-size:15px;white-space:pre-line">${esc(comment)}</blockquote>` : ''}
     ${stepsHtml}
+    ${photos.length ? `<p style="font-size:15px;margin:12px 0">📎 ${photos.length === 1 ? 'Ett bilde er lagt ved' : `${photos.length} bilder er lagt ved`}.</p>` : ''}
     <p style="margin:20px 0"><a href="${SITE}/liste/?id=${list.id}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#1f6f4a;color:#fff;text-decoration:none;font-weight:600">Åpne listen</a></p>
     <p style="color:#8a8a8a;font-size:13px">Du får denne e-posten fordi du er mottaker av bekreftelser for listen. Det endres under «Listen» når listen redigeres i Husk Klommestein.</p>
   </div>`;
   const text = `${who} har gått gjennom «${list.title}» i ${perm.name}. ${when}.\n${done} av ${all.length} punkter er gjort.`
     + (comment ? `\n\nKommentar:\n${comment}` : '')
     + (list.confirm_include_steps ? `\n\n${all.map((s, i) => `${checked.has(s.id) ? '✓' : '✗'} ${i + 1}. ${s.title || 'Uten tittel'}`).join('\n')}` : '')
+    + (photos.length ? `\n\n${photos.length} bilde(r) lagt ved.` : '')
     + `\n\n${SITE}/liste/?id=${list.id}`;
 
   // Én e-post per mottaker, så de ikke ser hverandres adresser.
   const results = await Promise.all(emails.map((to) => fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to, subject, html, text }),
+    body: JSON.stringify({ from: FROM, to, subject, html, text, ...(attachments.length ? { attachments } : {}) }),
   }).then(async (r) => { if (!r.ok) console.error(to, r.status, await r.text()); return r.ok; })));
   const sent = results.filter(Boolean).length;
-  if (!sent) return fail(502, 'send_failed', 'Kunne ikke sende bekreftelsen. Prøv igjen om litt.');
+  if (!sent) {
+    if (photoPaths.length) await admin.storage.from('bekreftelser').remove(photoPaths);
+    return fail(502, 'send_failed', 'Kunne ikke sende bekreftelsen. Prøv igjen om litt.');
+  }
 
   // Loggen tar vare på stegene slik de var nå, så eiere og redaktører kan se
   // hvilke som ble krysset av (også om listen endres senere).
   await admin.from('confirmations').insert({
+    id, photos: photoPaths,
     list_id: list.id, name: name || null, comment: comment || null, done, total: all.length, recipients: sent,
     steps: all.map((s) => ({ title: s.title || 'Uten tittel', done: checked.has(s.id) })),
   });
