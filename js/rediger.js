@@ -20,7 +20,10 @@ const stepsEl = $('steps');
 // Hvert bilde kan i tillegg ha localUrl og uploading mens det lastes opp,
 // og hvert steg shown (bildet som vises).
 let list;
+// Sidene i redigeringen: først innstillingene for listen, så stegene. Steg i
+// står derfor på side i + 1. current er siden som vises.
 let current = 0;
+const pageOf = (stepIndex) => stepIndex + 1;
 
 showStatusIn($('save-status'));
 
@@ -45,9 +48,10 @@ function labelWidth(input, text) {
 // Tegning
 // ---------------------------------------------------------------------------
 
+// scrollTo er siden som skal vises (se pageOf).
 function renderAll(scrollTo = current) {
   flushAll();
-  stepsEl.replaceChildren(...list.steps.map(renderStep), renderSettings());
+  stepsEl.replaceChildren(renderSettings(), ...list.steps.map(renderStep));
   current = Math.min(scrollTo, stepsEl.children.length - 1);
   stepsEl.scrollTop = current * stepsEl.clientHeight;
   updateCounter();
@@ -57,7 +61,7 @@ function rerenderStep(step) {
   const index = list.steps.indexOf(step);
   if (index === -1) return;
   flushAll();
-  stepsEl.children[index].replaceWith(renderStep(step, index));
+  stepsEl.children[pageOf(index)].replaceWith(renderStep(step, index));
 }
 
 function renderStep(step, index) {
@@ -181,7 +185,7 @@ function renderStep(step, index) {
     el('div', { class: 'actions' },
       el('button', {
         class: 'check', type: 'button',
-        onclick: () => (isLast ? addStep() : scrollToSection(index + 1)),
+        onclick: () => (isLast ? addStep() : scrollToPage(pageOf(index + 1))),
       }, 'Neste steg'),
       el('div', { class: 'step-tools' },
         el('button', { type: 'button', disabled: index === 0, onclick: () => moveStep(index, -1) }, '↑ Flytt opp'),
@@ -216,8 +220,15 @@ function renderSettings() {
   const view = el('a', { class: 'check secondary', href: `/liste/?id=${list.id}` }, 'Se listen slik andre ser den');
   leaveVia(view);
 
+  // Har listen steg, fører knappen ned til dem; ellers lager den det første.
+  const toSteps = list.steps.length
+    ? el('button', { class: 'check', type: 'button', onclick: () => scrollToPage(pageOf(0)) },
+        `Til stegene (${list.steps.length}) ↓`)
+    : el('button', { class: 'check', type: 'button', onclick: addStep }, '+ Legg til første steg');
+
   return el('section', { class: 'summary settings', 'aria-label': 'Innstillinger for listen' },
     el('h2', {}, 'Listen'),
+    el('p', { class: 'settings-intro' }, 'Valgene her gjelder hele listen. Stegene ligger under.'),
     el('label', { class: 'setting', for: 'list-title-input' }, 'Navn'),
     title,
     el('label', { class: 'setting toggle' },
@@ -225,18 +236,18 @@ function renderSettings() {
       el('span', {},
         'Krev at alle bildene er sett før avkryssing',
         el('small', {}, 'Nyttig for lister andre skal følge. Gjelder steg med flere bilder.'))),
-    el('button', { class: 'check', type: 'button', onclick: addStep },
-      list.steps.length ? '+ Nytt steg' : '+ Legg til første steg'),
+    toSteps,
     view);
 }
 
-function scrollToSection(index) {
-  stepsEl.children[index]?.scrollIntoView({ behavior: 'smooth' });
+function scrollToPage(page) {
+  stepsEl.children[page]?.scrollIntoView({ behavior: 'smooth' });
 }
 
+// Telleren viser steget; på innstillingssiden står den tom.
 function updateCounter() {
   const total = list.steps.length;
-  $('counter').textContent = current < total ? `${current + 1} av ${total}` : '';
+  $('counter').textContent = current >= 1 && current <= total ? `${current} av ${total}` : '';
 }
 
 function trackCurrentSection() {
@@ -307,16 +318,16 @@ async function addStep() {
   await save(insertStep(list.id, list.steps.length + 1).then((r) => { row = r; }));
   if (!row) return;
   list.steps.push({ id: row.id, title: '', description: '', images: [] });
-  renderAll(list.steps.length - 1);
+  renderAll(pageOf(list.steps.length - 1));
   // Arbeidsflyten er tittel, beskrivelse, bilde – så tittelen får fokus.
-  stepsEl.children[list.steps.length - 1].querySelector('.step-title')?.focus({ preventScroll: true });
+  stepsEl.children[pageOf(list.steps.length - 1)].querySelector('.step-title')?.focus({ preventScroll: true });
 }
 
 function moveStep(index, direction) {
   const target = index + direction;
   const [step] = list.steps.splice(index, 1);
   list.steps.splice(target, 0, step);
-  renderAll(target);
+  renderAll(pageOf(target));
   save(saveOrder('steps', list.steps.map((s) => s.id)));
 }
 
@@ -328,7 +339,8 @@ function removeStep(index) {
   if (!confirm(`Slette ${name}${withImages}?`)) return;
 
   list.steps.splice(index, 1);
-  renderAll(Math.min(index, list.steps.length));
+  // Steget som tar plassen vises, eller det forrige; uten steg, innstillingene.
+  renderAll(list.steps.length ? pageOf(Math.min(index, list.steps.length - 1)) : 0);
   const paths = step.images.map((image) => image.path).filter(Boolean);
   save(deleteStep(step.id).then(() => removeFiles(paths)));
 }
@@ -443,14 +455,13 @@ async function main() {
 
   $('message').hidden = true;
   stepsEl.hidden = false;
-  renderAll(0);
+  // Redigeringen starter på innstillingene øverst. En nyopprettet liste
+  // starter på steg 1 med markøren i tittelen.
+  const isNew = new URLSearchParams(location.search).has('ny') && list.steps.length > 0;
+  renderAll(isNew ? pageOf(0) : 0);
   trackCurrentSection();
   setupWritingMode();
-
-  // En nyopprettet liste starter på steg 1 med markøren i tittelen.
-  if (new URLSearchParams(location.search).has('ny')) {
-    stepsEl.querySelector('.step-title')?.focus({ preventScroll: true });
-  }
+  if (isNew) stepsEl.children[pageOf(0)].querySelector('.step-title')?.focus({ preventScroll: true });
 }
 
 main();

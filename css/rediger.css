@@ -198,7 +198,9 @@ body.viewer.writing {
   overflow-y: auto;
 }
 
-/* Siste side: innstillinger for listen. */
+/* Første side: innstillinger for hele listen, over stegene. */
+.settings .settings-intro { margin: -4px 0 20px; color: var(--v-muted); }
+.settings .check { text-align: center; }
 .settings label.setting { display: block; margin: 0 0 6px; font-weight: 600; }
 
 .settings input[type="text"] {
