@@ -4,7 +4,7 @@
 
 import { getGroup, getList, imageUrl } from './data.js';
 import { designPicker } from './designvelger.js';
-import { DESIGNS, drawSticker, loadFonts } from './plakat-motor.js';
+import { STICKER_DESIGNS as DESIGNS, drawSticker, loadFonts } from './plakat-motor.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -87,7 +87,7 @@ async function main() {
   });
 
   function showName(i) {
-    $('design-name').textContent = DESIGNS[i].name;
+    $('design-name').textContent = DESIGNS[i].stickerName ?? DESIGNS[i].name;
     $('design-count').textContent = `${i + 1} av ${DESIGNS.length}`;
   }
 

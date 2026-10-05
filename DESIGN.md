@@ -201,6 +201,10 @@ Designene er felles for plakat og QR-merke, og står i `js/plakat-motor.js`:
   grønntone) og ulike komposisjoner – tonet ut fra en side, bånd, panel, passepartout.
 - **Store QR-koder** (2): enkle, for når skanning er hovedsaken.
 
+QR-merkene bruker bare farger, skrift, filter og ramme fra designet, ikke komposisjonen.
+Mange plakatdesign ville derfor gitt like merker; QR-siden viser bare de **20** som er
+tydelig forskjellige (designene merket `noSticker` er utelatt).
+
 Plakaten tegnes på et canvas med samme kode for forhåndsvisning og PDF, så man får det
 man ser. Fotofiltrene regnes ut piksel for piksel, fordi `ctx.filter` ikke virker i Safari.
 
