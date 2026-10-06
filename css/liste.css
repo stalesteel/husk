@@ -423,3 +423,42 @@ body.viewer {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Mens bekreftelsen sendes: et snurrehjul og en lysstripe som glir over
+   knappen, så det er tydelig at sendingen pågår. */
+.summary .confirm .check.sending {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-style: solid;
+  border-color: var(--v-text);
+  color: var(--v-text);
+}
+.check.sending::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.14) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: sending-sweep 1.4s ease-in-out infinite;
+}
+.spinner {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--v-text);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes sending-sweep { to { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .check.sending::after, .spinner { animation: none; }
+  .check.sending { animation: sending-pulse 1.6s ease-in-out infinite; }
+  @keyframes sending-pulse { 50% { opacity: 0.6; } }
+}

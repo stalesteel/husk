@@ -175,6 +175,31 @@ function trackCurrentSection() {
   stepsEl.addEventListener('scroll', update, { passive: true });
   update();
 
+  // Skjemaet for bekreftelse: når tastaturet åpnes og lukkes, endres høyden,
+  // og rulleposisjonen (regnet ut fra den gamle høyden) ville snappet til et
+  // steg midt i listen. Oppsummeringen holdes derfor på plass mens noen skriver
+  // i den, og legges tilbake når tastaturet er lukket.
+  let hold = null;
+  const keep = () => {
+    if (hold === null) return;
+    stepsEl.scrollTop = hold * stepsEl.clientHeight;
+  };
+  const isField = (node) => node?.matches?.('input, textarea');
+  stepsEl.addEventListener('focusin', (event) => {
+    if (isField(event.target) && event.target.closest('.summary')) hold = total;
+  });
+  stepsEl.addEventListener('focusout', () => {
+    setTimeout(() => {
+      if (isField(document.activeElement) && document.activeElement.closest('.summary')) return;
+      // Tastaturet lukkes over litt tid; legg siden på plass underveis og etterpå.
+      keep();
+      requestAnimationFrame(keep);
+      setTimeout(() => { keep(); hold = null; }, 450);
+    }, 50);
+  });
+  window.visualViewport?.addEventListener('resize', keep);
+  window.addEventListener('resize', keep);
+
   // Piltastene til venstre og høyre blar mellom bildene i steget som vises.
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;

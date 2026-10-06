@@ -118,13 +118,16 @@ export function confirmForm(list, checkedIds) {
     try { localStorage.setItem(NAME_KEY, who); } catch { /* privat modus */ }
     showStatus('');
     button.disabled = true;
-    button.textContent = 'Sender …';
+    // Animasjonen viser at sendingen pågår (kan ta litt tid med bilder).
+    button.classList.add('sending');
+    button.replaceChildren(el('span', { class: 'spinner', 'aria-hidden': 'true' }), 'Sender …');
     try {
       await sendConfirmation(list.id, checkedIds(), who, comment?.value.trim() ?? '', photos.map((p) => p.data));
       sent = true;
       box.replaceChildren(el('h3', {}, '✓ Bekreftelsen er sendt'),
         el('p', { class: 'confirm-intro' }, 'Takk! Den som har ansvaret for listen, har fått beskjed.'));
     } catch (error) {
+      button.classList.remove('sending');
       showStatus(error.message, true);
       update();
     }
