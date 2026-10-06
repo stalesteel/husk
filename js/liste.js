@@ -175,30 +175,49 @@ function trackCurrentSection() {
   stepsEl.addEventListener('scroll', update, { passive: true });
   update();
 
-  // Skjemaet for bekreftelse: når tastaturet åpnes og lukkes, endres høyden,
-  // og rulleposisjonen (regnet ut fra den gamle høyden) ville snappet til et
-  // steg midt i listen. Oppsummeringen holdes derfor på plass mens noen skriver
-  // i den, og legges tilbake når tastaturet er lukket.
-  let hold = null;
-  const keep = () => {
-    if (hold === null) return;
-    stepsEl.scrollTop = hold * stepsEl.clientHeight;
+  // Skjemaet for bekreftelse: når tastaturet åpnes og lukkes, ruller iPhone
+  // selv for å vise feltet, og etterpå snapper rullingen til et steg midt i
+  // listen. Mens noen skriver i oppsummeringen, og et øyeblikk etter, er
+  // snappingen derfor av og listen låst på oppsummeringen: ruller noe den bort,
+  // legges den straks tilbake.
+  let lockTop = null;
+  let release = null;
+  const summaryTop = () => summaryEl.offsetTop - stepsEl.offsetTop;
+  const holdSummary = () => {
+    if (lockTop === null) return;
+    lockTop = summaryTop();
+    if (Math.abs(stepsEl.scrollTop - lockTop) > 1) stepsEl.scrollTop = lockTop;
   };
-  const isField = (node) => node?.matches?.('input, textarea');
+  const isField = (node) => node?.matches?.('input, textarea') && node.closest('.summary');
   stepsEl.addEventListener('focusin', (event) => {
-    if (isField(event.target) && event.target.closest('.summary')) hold = total;
+    if (!isField(event.target)) return;
+    clearTimeout(release);
+    lockTop = summaryTop();
+    stepsEl.style.scrollSnapType = 'none';
   });
   stepsEl.addEventListener('focusout', () => {
     setTimeout(() => {
-      if (isField(document.activeElement) && document.activeElement.closest('.summary')) return;
-      // Tastaturet lukkes over litt tid; legg siden på plass underveis og etterpå.
-      keep();
-      requestAnimationFrame(keep);
-      setTimeout(() => { keep(); hold = null; }, 450);
+      if (isField(document.activeElement)) return;
+      holdSummary();
+      // Tastaturet lukkes over litt tid; hold låsen til det er ferdig.
+      clearTimeout(release);
+      release = setTimeout(() => {
+        holdSummary();
+        lockTop = null;
+        stepsEl.style.scrollSnapType = '';
+      }, 1000);
     }, 50);
   });
-  window.visualViewport?.addEventListener('resize', keep);
-  window.addEventListener('resize', keep);
+  // Et trykk på et steg som gjenstår (eller tilbake), slipper låsen med en gang.
+  stepsEl.addEventListener('click', (event) => {
+    if (lockTop === null || !event.target.closest('.summary .check:not(.confirm-send)')) return;
+    clearTimeout(release);
+    lockTop = null;
+    stepsEl.style.scrollSnapType = '';
+  }, true);
+  stepsEl.addEventListener('scroll', holdSummary, { passive: true });
+  window.visualViewport?.addEventListener('resize', holdSummary);
+  window.addEventListener('resize', holdSummary);
 
   // Piltastene til venstre og høyre blar mellom bildene i steget som vises.
   document.addEventListener('keydown', (event) => {
