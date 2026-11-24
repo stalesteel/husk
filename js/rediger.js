@@ -219,8 +219,18 @@ function renderSettings() {
   });
 
   const requireSeen = el('input', { type: 'checkbox', checked: list.require_all_images_seen });
-  requireSeen.addEventListener('change', () => {
+  requireSeen.addEventListener('change', async () => {
     list.require_all_images_seen = requireSeen.checked;
+    const listRadio = document.querySelector('[name="display-mode"][value="list"]');
+    if (listRadio) listRadio.disabled = requireSeen.checked;
+    // Kravet gjelder bare ett punkt om gangen; en avkrysningsliste byttes om.
+    if (requireSeen.checked && list.display_mode === 'list') {
+      list.display_mode = 'cards';
+      save(updateList(list.id, { require_all_images_seen: true, display_mode: 'cards' }));
+      await settle();
+      location.replace(`/rediger/?id=${list.id}`);
+      return;
+    }
     save(updateList(list.id, { require_all_images_seen: requireSeen.checked }));
   });
 
@@ -256,7 +266,10 @@ function renderSettings() {
 function renderDisplaySetting() {
   const current = list.display_mode === 'list' ? 'list' : 'cards';
   const option = (value, text, help) => {
-    const radio = el('input', { type: 'radio', name: 'display-mode', value, checked: value === current });
+    const radio = el('input', {
+      type: 'radio', name: 'display-mode', value, checked: value === current,
+      disabled: value === 'list' && list.require_all_images_seen,
+    });
     radio.addEventListener('change', async () => {
       if (!radio.checked) return;
       list.display_mode = value;
@@ -269,7 +282,8 @@ function renderDisplaySetting() {
   return el('div', { class: 'settings-display' },
     el('p', { class: 'setting' }, 'Visning'),
     option('cards', 'Ett punkt om gangen', 'Stort bilde, sveip og kryss av. Best når man må se hvordan noe gjøres.'),
-    option('list', 'Avkrysningsliste', 'Alle punktene på én skjerm, med hake til høyre. Best for lister man løper raskt gjennom.'));
+    option('list', 'Avkrysningsliste', 'Alle punktene på én skjerm, med hake til høyre. Best for lister man løper raskt gjennom. '
+      + 'Ikke mulig når alle bildene må sees før avkryssing.'));
 }
 
 // Bekreftelse på e-post: av som standard. Slås den på, kommer valgene for

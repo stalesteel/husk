@@ -108,9 +108,11 @@ administratoren appen som alle andre.
 
 En liste har én av to **visninger**, valgt av eieren per liste:
 
-- **Ett punkt om gangen** (standard): kortene beskrevet under.
-- **Avkrysningsliste**: alle punktene som linjer på én skjerm, med en stor hake til høyre.
-  For lister man løper raskt gjennom, der bildene ikke er hele poenget.
+- **Avkrysningsliste** (standard): alle punktene som linjer på én skjerm, med en stor hake
+  til høyre. For lister man løper raskt gjennom, der bildene ikke er hele poenget.
+- **Ett punkt om gangen**: kortene beskrevet under. **Lister som krever at alle bildene er
+  sett, bruker alltid denne**, og gjesten kan ikke bytte; i avkrysningslisten kunne man
+  krysset av uten å ha sett bildene.
 
 Det er ikke flere listetyper: bilde og beskrivelse er valgfritt for hvert punkt i begge
 visningene, så en ren tekstliste, en kortliste og en blanding er samme ting. Eierens valg er

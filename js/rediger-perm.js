@@ -156,8 +156,8 @@ async function removeList(index) {
 const MODE_KEY = 'husk-ny-visning';
 
 function setupNewList() {
-  let last = 'cards';
-  try { last = localStorage.getItem(MODE_KEY) === 'list' ? 'list' : 'cards'; } catch { /* privat modus */ }
+  let last = 'list';
+  try { last = localStorage.getItem(MODE_KEY) === 'cards' ? 'cards' : 'list'; } catch { /* privat modus */ }
   for (const radio of $('new-list').querySelectorAll('[name="new-list-mode"]')) radio.checked = radio.value === last;
 
   $('new-list').addEventListener('submit', async (event) => {

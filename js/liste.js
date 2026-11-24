@@ -340,9 +340,13 @@ if (list) {
   const VIEW_KEY = `husk-visning:${list.id}`;
   let saved = null;
   try { saved = localStorage.getItem(VIEW_KEY); } catch { /* privat modus */ }
-  const start = saved === 'list' || saved === 'cards' ? saved : (list.display_mode === 'list' ? 'list' : 'cards');
+  // Må alle bildene sees før avkryssing, er avkrysningslisten ikke et valg:
+  // der kan man krysse av uten å ha sett bildene.
+  const mustSeeImages = list.require_all_images_seen;
+  const start = mustSeeImages ? 'cards'
+    : saved === 'list' || saved === 'cards' ? saved : (list.display_mode === 'list' ? 'list' : 'cards');
 
-  $('view-toggle').hidden = list.steps.length === 0;
+  $('view-toggle').hidden = list.steps.length === 0 || mustSeeImages;
   $('view-toggle').addEventListener('click', () => {
     const next = mode === 'cards' ? 'list' : 'cards';
     try { localStorage.setItem(VIEW_KEY, next); } catch { /* privat modus */ }
