@@ -1,5 +1,6 @@
 import { getList, imageUrl } from './data.js';
 import { canEdit } from './admin.js';
+import { renderChecklist } from './avkrysning.js';
 import { confirmForm } from './bekreftelse.js';
 import { imageArrows } from './bildepiler.js';
 import { el } from './dom.js';
@@ -13,6 +14,13 @@ const steps = [];
 let summaryEl;
 // Skjemaet for bekreftelse på e-post, når det er slått på for listen.
 let confirmation = null;
+// Id-ene til punktene som er krysset av. Felles for begge visningene, så
+// avkryssingene følger med når gjesten bytter.
+const checked = new Set();
+// Visningen: 'cards' (ett punkt om gangen) eller 'list' (avkrysningsliste).
+let mode = 'cards';
+let checklistView = null;
+const checklistEl = $('checklist');
 
 function showMessage(text) {
   $('message').textContent = text;
@@ -29,7 +37,7 @@ function stepTitle(step) {
 // ---------------------------------------------------------------------------
 
 function renderStep(step, index) {
-  const state = { checked: false, seen: new Set(), images: step.images, current: 0 };
+  const state = { checked: checked.has(step.id), seen: new Set(), images: step.images, current: 0 };
   steps.push(state);
 
   const slides = el('div', { class: 'slides' }, step.images.map((image, i) => {
@@ -63,7 +71,8 @@ function renderStep(step, index) {
     if (i !== state.current) setCurrentImage(index, i);
   }, { passive: true });
 
-  const section = el('section', { class: 'step', 'aria-label': `Steg ${index + 1}: ${stepTitle(step)}` },
+  // Uten bilde får teksten hele plassen, i stedet for en tom, mørk flate.
+  const section = el('section', { class: step.images.length ? 'step' : 'step no-media', 'aria-label': `Steg ${index + 1}: ${stepTitle(step)}` },
     el('div', { class: 'media' },
       slides,
       state.dots.length ? el('div', { class: 'dots' }, state.dots) : null,
@@ -109,6 +118,7 @@ function updateButton(index) {
 function toggle(index) {
   const state = steps[index];
   state.checked = !state.checked;
+  if (state.checked) checked.add(list.steps[index].id); else checked.delete(list.steps[index].id);
   updateButton(index);
   updateSummary();
   // Etter avkryssing går vi videre til neste steg, eller til oppsummeringen.
@@ -161,19 +171,21 @@ function updateSummary() {
 // ---------------------------------------------------------------------------
 
 // Hvilket steg som vises, regnes ut fra rulleposisjonen, som for bildene.
-function trackCurrentSection() {
+let shown = -1;
+
+function updateSection() {
+  if (mode !== 'cards') return;
   const total = list.steps.length;
-  let shown = -1;
-  const update = () => {
-    const index = Math.round(stepsEl.scrollTop / stepsEl.clientHeight);
-    if (index === shown) return;
-    shown = index;
-    $('counter').textContent = index < total ? `${index + 1} av ${total}` : 'Oppsummering';
-    // Bildet som vises når steget kommer til syne, telles som sett.
-    if (index < total) setCurrentImage(index, steps[index].current);
-  };
-  stepsEl.addEventListener('scroll', update, { passive: true });
-  update();
+  const index = Math.round(stepsEl.scrollTop / stepsEl.clientHeight);
+  if (index === shown) return;
+  shown = index;
+  $('counter').textContent = index < total ? `${index + 1} av ${total}` : 'Oppsummering';
+  // Bildet som vises når steget kommer til syne, telles som sett.
+  if (index < total) setCurrentImage(index, steps[index].current);
+}
+
+function trackCurrentSection() {
+  stepsEl.addEventListener('scroll', updateSection, { passive: true });
 
   // Skjemaet for bekreftelse: når tastaturet åpnes og lukkes, ruller iPhone
   // selv for å vise feltet, og etterpå snapper rullingen til et steg midt i
@@ -221,7 +233,7 @@ function trackCurrentSection() {
 
   // Piltastene til venstre og høyre blar mellom bildene i steget som vises.
   document.addEventListener('keydown', (event) => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    if (mode !== 'cards' || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
     const slides = steps[shown]?.slides;
     if (!slides || steps[shown].images.length < 2) return;
     event.preventDefault();
@@ -247,6 +259,59 @@ function keepAwake() {
 }
 
 // ---------------------------------------------------------------------------
+// Visningen
+// ---------------------------------------------------------------------------
+
+const ICONS = {
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg>',
+  cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 13h14"/></svg>',
+};
+
+const remainingCount = () => list.steps.filter((step) => !checked.has(step.id)).length;
+
+function updateListCounter() {
+  const done = list.steps.length - remainingCount();
+  $('counter').textContent = list.steps.length ? `${done} av ${list.steps.length}` : '';
+}
+
+function setMode(next) {
+  mode = next;
+  const button = $('view-toggle');
+  button.innerHTML = next === 'cards' ? ICONS.list : ICONS.cards;
+  button.setAttribute('aria-label', next === 'cards' ? 'Vis som avkrysningsliste' : 'Vis ett punkt om gangen');
+  button.title = button.getAttribute('aria-label');
+
+  const back = el('a', { class: 'check secondary', href: `/perm/?id=${list.group.id}` }, `Tilbake til ${list.group.name}`);
+  if (next === 'list') {
+    stepsEl.hidden = true;
+    checklistEl.hidden = false;
+    checklistView = renderChecklist(checklistEl, list, {
+      checked,
+      tail: [confirmation?.box, back],
+      onChange: () => {
+        checklistView.update();
+        confirmation?.update(remainingCount());
+        updateListCounter();
+      },
+    });
+    confirmation?.update(remainingCount());
+    updateListCounter();
+    checklistEl.scrollTop = 0;
+  } else {
+    // Kortene tegnes på nytt, med avkryssingene fra den andre visningen.
+    checklistEl.hidden = true;
+    checklistEl.replaceChildren();
+    steps.length = 0;
+    stepsEl.replaceChildren(...list.steps.map(renderStep), summaryEl);
+    updateSummary();
+    stepsEl.hidden = false;
+    stepsEl.scrollTop = 0;
+    shown = -1;
+    updateSection();
+  }
+}
+
+// ---------------------------------------------------------------------------
 
 try {
   list = await getList(new URLSearchParams(location.search).get('id'));
@@ -266,16 +331,26 @@ if (list) {
     $('edit').hidden = false;
   }
 
-  stepsEl.append(...list.steps.map(renderStep));
-  summaryEl = el('section', { class: 'summary', 'aria-label': 'Oppsummering' });
   if (list.confirm?.enabled && list.steps.length) {
-    confirmation = confirmForm(list, () => list.steps.filter((_, i) => steps[i].checked).map((step) => step.id));
+    confirmation = confirmForm(list, () => list.steps.filter((step) => checked.has(step.id)).map((step) => step.id));
   }
-  stepsEl.append(summaryEl);
-  updateSummary();
+  summaryEl = el('section', { class: 'summary', 'aria-label': 'Oppsummering' });
+
+  // Eierens valg er standard; gjesten kan bytte, og valget huskes per liste.
+  const VIEW_KEY = `husk-visning:${list.id}`;
+  let saved = null;
+  try { saved = localStorage.getItem(VIEW_KEY); } catch { /* privat modus */ }
+  const start = saved === 'list' || saved === 'cards' ? saved : (list.display_mode === 'list' ? 'list' : 'cards');
+
+  $('view-toggle').hidden = list.steps.length === 0;
+  $('view-toggle').addEventListener('click', () => {
+    const next = mode === 'cards' ? 'list' : 'cards';
+    try { localStorage.setItem(VIEW_KEY, next); } catch { /* privat modus */ }
+    setMode(next);
+  });
 
   $('message').hidden = true;
-  stepsEl.hidden = false;
   trackCurrentSection();
+  setMode(start);
   keepAwake();
 }

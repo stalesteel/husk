@@ -231,3 +231,73 @@ body.viewer.writing {
 .settings-confirm p.setting { margin: 18px 0 8px; color: var(--v-muted); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .settings-confirm label.setting.toggle { margin-bottom: 12px; overflow-wrap: anywhere; }
 .settings .settings-warn { margin: 0 0 8px; color: var(--v-remaining); }
+
+/* Visning (på innstillingssiden) */
+.settings-display { margin: 4px 0 18px; }
+.settings-display p.setting { margin: 0 0 10px; }
+.settings .settings-display .toggle input { accent-color: var(--v-done); }
+
+/* ---------------------------------------------------------------------------
+   Linjeredigering av avkrysningslister: innstillingene øverst, så punktene
+   som linjer man skriver rett i.
+   --------------------------------------------------------------------------- */
+
+.lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 40px);
+}
+.lines .settings { height: auto; overflow: visible; max-width: 720px; margin: 0 auto; }
+.lines-editor { max-width: 720px; margin: 0 auto; padding: 8px 20px 0; }
+.lines-head { margin: 8px 0 4px; font-size: 1.5rem; }
+.lines-hint { margin: 0 0 12px; color: var(--v-muted); font-size: 0.9375rem; }
+
+.lines-list { margin: 0; padding: 0; list-style: none; }
+.line { display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px solid #222; }
+.line:first-child { border-top: 1px solid #222; }
+.line-no { flex: none; width: 2em; padding-top: 14px; color: var(--v-muted); text-align: right; font-variant-numeric: tabular-nums; }
+.line-field { flex: 1; min-width: 0; }
+.line-input {
+  display: block;
+  width: 100%;
+  padding: 12px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--v-text);
+  font: inherit;
+  font-size: 1.0625rem; /* minst 16px, ellers zoomer iPhone inn */
+  outline: none;
+}
+.line-input::placeholder { color: #6f6f6b; }
+.line:focus-within { background: #111; }
+.line-extra { display: block; margin: -8px 0 10px 4px; color: var(--v-muted); font-size: 0.8125rem; }
+
+.line-tools { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0 12px 2.5em; border-bottom: 1px solid #222; background: #111; }
+.line-tools button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--v-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+.line-tools button:disabled { opacity: 0.35; cursor: default; }
+.line-tools .danger { color: var(--v-remaining); border-color: #5a2a2a; }
+
+.line-add {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  min-height: 52px;
+  border: 2px dashed #444;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--v-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

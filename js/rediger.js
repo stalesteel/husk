@@ -12,7 +12,8 @@ import { getConfirmCandidates } from './bekreftelse.js';
 import { imageArrows } from './bildepiler.js';
 import { el } from './dom.js';
 import { prepareImage } from './images.js';
-import { flushAll, later, leaveVia, save, showStatusIn } from './saving.js';
+import { lineEditor } from './linjeredigering.js';
+import { flushAll, later, leaveVia, save, settle, showStatusIn } from './saving.js';
 
 const $ = (id) => document.getElementById(id);
 const stepsEl = $('steps');
@@ -27,6 +28,9 @@ let current = 0;
 const pageOf = (stepIndex) => stepIndex + 1;
 // Eieren og redaktørene som kan få bekreftelse på e-post (hentes i main).
 let candidates = [];
+// Avkrysningslister redigeres som linjer (linjeredigering.js); ett punkt kan
+// åpnes i kortredigeringen for bilde og beskrivelse (?kort&steg=id).
+let lineMode = false;
 
 showStatusIn($('save-status'));
 
@@ -224,7 +228,8 @@ function renderSettings() {
   leaveVia(view);
 
   // Har listen steg, fører knappen ned til dem; ellers lager den det første.
-  const toSteps = list.steps.length
+  // I linjeredigeringen står punktene rett under, så knappen trengs ikke.
+  const toSteps = lineMode ? null : list.steps.length
     ? el('button', { class: 'check', type: 'button', onclick: () => scrollToPage(pageOf(0)) },
         `Til stegene (${list.steps.length}) ↓`)
     : el('button', { class: 'check', type: 'button', onclick: addStep }, '+ Legg til første steg');
@@ -234,6 +239,7 @@ function renderSettings() {
     el('p', { class: 'settings-intro' }, 'Valgene her gjelder hele listen. Stegene ligger under.'),
     el('label', { class: 'setting', for: 'list-title-input' }, 'Navn'),
     title,
+    renderDisplaySetting(),
     el('label', { class: 'setting toggle' },
       requireSeen,
       el('span', {},
@@ -242,6 +248,28 @@ function renderSettings() {
     renderConfirmSettings(),
     toSteps,
     view);
+}
+
+// Visningen: ett punkt om gangen, eller avkrysningsliste. Det er eierens
+// standard; gjesten kan bytte selv. Avkrysningslister redigeres som linjer,
+// så siden lastes på nytt i riktig redigering.
+function renderDisplaySetting() {
+  const current = list.display_mode === 'list' ? 'list' : 'cards';
+  const option = (value, text, help) => {
+    const radio = el('input', { type: 'radio', name: 'display-mode', value, checked: value === current });
+    radio.addEventListener('change', async () => {
+      if (!radio.checked) return;
+      list.display_mode = value;
+      save(updateList(list.id, { display_mode: value }));
+      await settle();
+      location.replace(`/rediger/?id=${list.id}`);
+    });
+    return el('label', { class: 'setting toggle' }, radio, el('span', {}, text, el('small', {}, help)));
+  };
+  return el('div', { class: 'settings-display' },
+    el('p', { class: 'setting' }, 'Visning'),
+    option('cards', 'Ett punkt om gangen', 'Stort bilde, sveip og kryss av. Best når man må se hvordan noe gjøres.'),
+    option('list', 'Avkrysningsliste', 'Alle punktene på én skjerm, med hake til høyre. Best for lister man løper raskt gjennom.'));
 }
 
 // Bekreftelse på e-post: av som standard. Slås den på, kommer valgene for
@@ -521,11 +549,35 @@ async function main() {
   leaveVia($('done'));
 
   $('message').hidden = true;
+  const params = new URLSearchParams(location.search);
+  const isNew = params.has('ny') && list.steps.length > 0;
+  lineMode = list.display_mode === 'list' && !params.has('kort');
+
+  if (lineMode) {
+    // Avkrysningsliste: innstillingene øverst, så punktene som linjer.
+    const editor = el('div', { class: 'lines-editor' });
+    $('lines').replaceChildren(renderSettings(), editor);
+    $('lines').hidden = false;
+    const lines = lineEditor(editor, list, {
+      openStep: async (step) => {
+        await settle();
+        location.assign(`/rediger/?id=${list.id}&kort&steg=${step.id}`);
+      },
+    });
+    if (isNew) lines.focusFirst();
+    return;
+  }
+
+  // Ett punkt fra linjeredigeringen: tilbake-pilen går dit igjen.
+  if (list.display_mode === 'list') {
+    $('back').href = `/rediger/?id=${list.id}`;
+    $('back').setAttribute('aria-label', 'Tilbake til linjene');
+  }
   stepsEl.hidden = false;
   // Redigeringen starter på innstillingene øverst. En nyopprettet liste
-  // starter på steg 1 med markøren i tittelen.
-  const isNew = new URLSearchParams(location.search).has('ny') && list.steps.length > 0;
-  renderAll(isNew ? pageOf(0) : 0);
+  // starter på steg 1 med markøren i tittelen; ?steg=id åpner det punktet.
+  const stepIndex = list.steps.findIndex((step) => step.id === params.get('steg'));
+  renderAll(isNew ? pageOf(0) : stepIndex >= 0 ? pageOf(stepIndex) : 0);
   trackCurrentSection();
   setupWritingMode();
   if (isNew) stepsEl.children[pageOf(0)].querySelector('.step-title')?.focus({ preventScroll: true });

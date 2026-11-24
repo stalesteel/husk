@@ -73,8 +73,9 @@ export const createGroup = (name) => run(supabase.from('groups')
   .select('id')
   .single());
 
-export const createList = (groupId, title, sortOrder) => run(supabase.from('lists')
-  .insert({ group_id: groupId, title, sort_order: sortOrder })
+// displayMode: 'cards' (ett punkt om gangen) eller 'list' (avkrysningsliste).
+export const createList = (groupId, title, sortOrder, displayMode = 'cards') => run(supabase.from('lists')
+  .insert({ group_id: groupId, title, sort_order: sortOrder, ...(displayMode === 'list' ? { display_mode: 'list' } : {}) })
   .select('id')
   .single());
 

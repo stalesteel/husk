@@ -52,6 +52,16 @@
         <div id="lists"></div>
         <form id="new-list" class="new-item">
           <input id="new-list-title" class="text-input" type="text" placeholder="Navn på ny liste" aria-label="Navn på ny liste" required>
+          <div class="mode-options" role="radiogroup" aria-label="Visning">
+            <label class="mode-option">
+              <input type="radio" name="new-list-mode" value="list">
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg><strong>Avkrysningsliste</strong><small>Alle punktene på én skjerm</small></span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="new-list-mode" value="cards">
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 13h14"/></svg><strong>Ett punkt om gangen</strong><small>Med bilde, sveip og kryss av</small></span>
+            </label>
+          </div>
           <button class="button" type="submit">+ Ny liste</button>
         </form>
       </section>

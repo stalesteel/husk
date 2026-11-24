@@ -19,10 +19,10 @@ All kommunikasjon og alt grensesnitt er på norsk bokmål. Unngå «hen» i teks
 ## Struktur
 
 - En mappe per side: `index.html` (forsiden), `perm/`, `liste/` (sjekklisten),
-  `rediger/` (liste), `rediger/perm/`, `logg-inn/`, `admin/`, `qr/`, `plakat/`,
+  `rediger/` (liste, som kort eller linjer), `rediger/perm/`, `logg-inn/`, `admin/`, `qr/`, `plakat/`,
   `om/`, `film/`. `gruppe/` sender gamle lenker videre til `perm/`.
 - `js/`: én modul per side, pluss felles moduler (`data.js`, `dom.js` med `el()`,
-  `saving.js`, `plakat-motor.js` osv.). `css/`: felles og per side.
+  `saving.js`, `plakat-motor.js`, `avkrysning.js` og `linjeredigering.js` for avkrysningslister osv.). `css/`: felles og per side.
 - `supabase/migrations/`: SQL i rekkefølge. `supabase/functions/`: Edge
   Functions (`inviter`, `registrer`, `bekreft`).
 - **«Perm» heter `group` i kode og database** (tabellen `groups`, `get_group`).

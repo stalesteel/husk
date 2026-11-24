@@ -151,17 +151,27 @@ async function removeList(index) {
 
 // Ny liste: får med en gang et tomt første steg, og åpnes i redigeringen
 // med markøren i tittelen – navn, så steg 1, som i arbeidsflyten.
+// Ny liste: navn og visning (avkrysningsliste eller ett punkt om gangen).
+// Visningen kan endres senere under «Listen»; sist valgte huskes.
+const MODE_KEY = 'husk-ny-visning';
+
 function setupNewList() {
+  let last = 'cards';
+  try { last = localStorage.getItem(MODE_KEY) === 'list' ? 'list' : 'cards'; } catch { /* privat modus */ }
+  for (const radio of $('new-list').querySelectorAll('[name="new-list-mode"]')) radio.checked = radio.value === last;
+
   $('new-list').addEventListener('submit', async (event) => {
     event.preventDefault();
     const title = $('new-list-title').value.trim();
     if (!title) return;
+    const mode = $('new-list').querySelector('[name="new-list-mode"]:checked')?.value === 'list' ? 'list' : 'cards';
+    try { localStorage.setItem(MODE_KEY, mode); } catch { /* privat modus */ }
     const button = $('new-list').querySelector('button');
     button.disabled = true;
 
     let listId = null;
     await save((async () => {
-      const { id } = await createList(group.id, title, group.lists.length + 1);
+      const { id } = await createList(group.id, title, group.lists.length + 1, mode);
       await insertStep(id, 1);
       listId = id;
     })());

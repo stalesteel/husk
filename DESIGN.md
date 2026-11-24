@@ -106,7 +106,23 @@ administratoren appen som alle andre.
 
 ## Sluttbrukerens visning
 
-Ett sjekkpunkt fyller hele skjermen. **Vertikal sveip bytter steg**, med scroll-snap så
+En liste har én av to **visninger**, valgt av eieren per liste:
+
+- **Ett punkt om gangen** (standard): kortene beskrevet under.
+- **Avkrysningsliste**: alle punktene som linjer på én skjerm, med en stor hake til høyre.
+  For lister man løper raskt gjennom, der bildene ikke er hele poenget.
+
+Det er ikke flere listetyper: bilde og beskrivelse er valgfritt for hvert punkt i begge
+visningene, så en ren tekstliste, en kortliste og en blanding er samme ting. Eierens valg er
+standard, men **gjesten kan bytte** med en knapp øverst; valget huskes per liste i
+nettleseren, og avkryssingene følger med over.
+
+I avkrysningslisten viser hver linje et lite bilde (det første), tittelen og beskrivelsen
+**avkortet til to linjer**. Har punktet mer innhold, foldes det ut ved trykk på linjen, med
+hele beskrivelsen og bildene; ellers krysser et trykk på linjen av. Nederst står hvor mange
+punkter som gjenstår, og eventuelt skjemaet for bekreftelse.
+
+I kortvisningen fyller ett sjekkpunkt hele skjermen. **Vertikal sveip bytter steg**, med scroll-snap så
 det alltid lander rent på ett punkt.
 
 ### Bilde og tekst
@@ -166,6 +182,7 @@ leses som en feil.
 - Siste side oppsummerer: «Alt klart!» eller en liste over punkter som gjenstår, med
   knapper tilbake til hvert av dem.
 - Mangler et bilde, vises en nøytral mørk bakgrunn — aldri et ødelagt bilde.
+- Har et punkt ingen bilder, får teksten hele kortet, større og midtstilt.
 - Skal fungere godt med én hånd, i sollys, på iPhone Safari og Android Chrome.
 
 ## Eierens redigering
@@ -187,6 +204,15 @@ Arbeidsflyten er:
 3. Begynn på steg 1: skriv tittel, skriv beskrivelse, ta bilde
 4. «Neste steg»
 5. Samme grensesnitt brukes når en eksisterende liste redigeres senere
+
+Ved ny liste velges visningen (sist valgte huskes); den kan endres under «Listen».
+
+**Avkrysningslister redigeres som linjer**, som et notat: man skriver rett i linjene,
+Enter gir et nytt punkt (midt i teksten deler den linjen), Backspace på en tom linje
+fjerner den, og limer man inn en liste med mange linjer, blir hver linje et punkt
+(punkttegn og nummer fjernes). Under linjen med markøren står verktøyene: flytt opp og ned,
+«Bilde og beskrivelse» (åpner punktet i kortredigeringen, med tilbake-pil til linjene) og
+«Slett». Nye punkter lagres i bakgrunnen, så man kan skrive videre med en gang.
 
 ## Bekreftelse på e-post
 
